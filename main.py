@@ -1,5 +1,19 @@
-# Miguel Angel Astor Romero. Created on 7-1-2013. #
-###################################################
+###################################################################################
+# Copyright (c) 2012, Miguel Angel Astor Romero                                   #
+# All rights reserved.                                                            #
+#                                                                                 #
+# Redistribution and use in source and binary forms, with or without              #
+# modification, are permitted provided that the following conditions are met:     #
+#                                                                                 #
+#    *) Redistributions of source code must retain the above                      #
+#       copyright notice, this list of conditions and the following disclaimer.   #
+#    *) Redistributions in binary form must reproduce the above copyright notice, #
+#       this list of conditions and the following disclaimer in the documentation #
+#       and/or other materials provided with the distribution.                    #
+#                                                                                 #
+# --                                                                              #
+# Created on 1-7-2013. Miguel Angel Astor                                         #
+###################################################################################
 import pygame
 
 try:
@@ -27,14 +41,13 @@ def main():
       screen = pygame.display.set_mode(screen_size)
    else:
       # If not on Android, default to a 800x600 pixels screen.
-      screen  = pygame.display.set_mode((800, 600))
+      screen  = pygame.display.set_mode((800, 600),
+                                        pygame.FULLSCREEN | pygame.HWSURFACE)
       pygame.display.set_caption("Super HUGS Revolution 98")
+   pygame.mouse.set_visible(False)
 
-   # Create the main game object.
+   # Create the main game object and start the main game loop.
    game = Game(screen)
-   
-   # Start the game.
-   print game.get_state()
    game.game_loop()
 
    # Cleanly terminate PyGame.
