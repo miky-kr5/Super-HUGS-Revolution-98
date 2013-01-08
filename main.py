@@ -1,5 +1,5 @@
 ###################################################################################
-# Copyright (c) 2012, Miguel Angel Astor Romero                                   #
+# Copyright (c) 2013, Miguel Angel Astor Romero                                   #
 # All rights reserved.                                                            #
 #                                                                                 #
 # Redistribution and use in source and binary forms, with or without              #
