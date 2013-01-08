@@ -12,7 +12,8 @@ from state import BaseState, VALID_STATES
 class IntroState(BaseState):
     def __init__(self):
         self.count = 0
-        self.rectangle = pygame.Rect(250, 350, 100, 100)
+        screen_center = self.get_screen_center()
+        self.rectangle = pygame.Rect(screen_center[0] - 50, screen_center[1] - 50, 100, 100)
         self.next_transition = VALID_STATES['STAY']
 
     def input(self):
