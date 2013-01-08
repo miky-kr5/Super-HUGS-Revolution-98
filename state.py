@@ -1,5 +1,6 @@
 # Miguel Angel Astor Romero. Created on 7-1-2013. #
 ###################################################
+import pygame
 
 # Valid game states.
 VALID_STATES = { 'INTRO':0, 'MENU':1, 'IN_GAME':2, 'SCORE':3, 'STAY':4, 'QUIT':89}
@@ -17,3 +18,7 @@ class BaseState:
     def render(self, canvas):
         """ Empty. Should render this state on the canvas. """
         pass
+
+    def get_screen_center(self):
+        return (pygame.display.Info().current_w / 2,
+                pygame.display.Info().current_h / 2)
