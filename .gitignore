@@ -1,0 +1,12 @@
+# Emacs backup files #
+######################
+*~
+
+# Compiled files #
+##################
+*.pyo
+*.pyc
+
+# OS Files #
+############
+Thumbs.db
