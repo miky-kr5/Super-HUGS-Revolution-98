@@ -1,19 +1,6 @@
-###################################################################################
-# Copyright (c) 2013, Miguel Angel Astor Romero                                   #
-# All rights reserved.                                                            #
-#                                                                                 #
-# Redistribution and use in source and binary forms, with or without              #
-# modification, are permitted provided that the following conditions are met:     #
-#                                                                                 #
-#    *) Redistributions of source code must retain the above                      #
-#       copyright notice, this list of conditions and the following disclaimer.   #
-#    *) Redistributions in binary form must reproduce the above copyright notice, #
-#       this list of conditions and the following disclaimer in the documentation #
-#       and/or other materials provided with the distribution.                    #
-#                                                                                 #
-# --                                                                              #
-# Created on 1-7-2013. Miguel Angel Astor                                         #
-###################################################################################
+###########################################
+# Created on 1-7-2013. Miguel Angel Astor #
+###########################################
 import pygame
 
 try:
@@ -46,7 +33,7 @@ def main():
       pygame.display.set_caption("Super HUGS Revolution 98")
    pygame.mouse.set_visible(False)
 
-   # Create the main game object and start the main game loop.
+   # Create the game object and start the main game loop.
    game = Game(screen)
    game.game_loop()
 
