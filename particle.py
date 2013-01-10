@@ -7,7 +7,6 @@ import random
 import pygame
 
 import math_utils
-import game
 
 class Particle(pygame.sprite.Sprite):
     def __init__(self, lifespan, scale, texture, gravity = [0.0, 9.8], position = [0,0], initial_vel = [100.0, 100.0], friction = 1.0, frame_rate = 60.0):
@@ -91,9 +90,10 @@ class ParticleSystem:
         self.part_creation_accum = 0.0
         self.then = pygame.time.get_ticks()
 
-        self.gravity = [0.0, -60.0]
+        self.gravity = [0.0, 9.8]
         self.position = [pygame.display.Info().current_w / 2, pygame.display.Info().current_h / 2]
         self.initial_velocity_max = 50 # Pixels per second.
+        self.friction = 0.99
         self.frame_rate = 60.0
 
         self.rectangle = pygame.Rect(0, 0, 25, 25)
@@ -122,6 +122,9 @@ class ParticleSystem:
     def set_angle(self, angle):
         self.angle = angle
 
+    def set_friction(self, friction):
+        self.friction = friction
+
     def update(self):
         # Calculate the time delta.
         now = pygame.time.get_ticks()
@@ -146,12 +149,12 @@ class ParticleSystem:
                                     float(random.randrange(-self.initial_velocity_max, self.initial_velocity_max))]
                         particle = Particle(
                             int(self.lifespan),
-                            random.random(),
+                            max(min(random.random(), 1.0), 0.5),
                             self.texture,
                             list(self.gravity),
                             list(self.position),
                             velocity,
-                            0.99,
+                            self.friction,
                             int(self.frame_rate))
                         self.particles.add(particle)
                     self.part_creation_accum = 0.0
@@ -164,7 +167,5 @@ class ParticleSystem:
         self.then = now
 
     def draw(self, canvas):
-        if game.DEBUG:
-            pygame.draw.rect(canvas, (255, 255, 0), self.rectangle)
         for particle in self.particles:
             particle.draw(canvas)

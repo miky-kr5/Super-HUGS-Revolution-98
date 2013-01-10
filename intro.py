@@ -13,6 +13,7 @@ except ImportError:
 from state import BaseState, VALID_STATES
 import actor
 import game
+import particle
 
 class IntroState(BaseState):
    def __init__(self):
@@ -35,10 +36,14 @@ class IntroState(BaseState):
 
       image2 = pygame.image.load('gfx/submarino1.png')
       self.submarine = actor.BaseActor(1, image2, "Submarine", True, True, False)
-      self.submarine.set_image_point_tuple((117, 284))
+      self.submarine.set_image_point_xy(117, 284)
       # Instert second animation frame of the subamrine.
 
-      # Create the particle system.
+      self.particle_system = particle.ParticleSystem(0, "Bubbles", 'gfx/burbuja.png', 1000, 1000, 1, -130.0)
+      self.particle_system.set_friction(1.0)
+      self.particle_system.set_gravity([0.0, -60.0])
+      self.particle_system.set_max_velocity(5.0)
+      self.particle_system.start()
       
       if game.DEBUG:
          print "Velocity: " + str(self.sine_movement.get_velocity())
@@ -66,6 +71,8 @@ class IntroState(BaseState):
       self.sine_movement.update()
       sm_position = self.sine_movement.get_position()
       self.submarine.set_position([sm_position[0], self.screen_vertical_half + math.sin(0.05 * float(sm_position[0])) * 42.0])
+      self.particle_system.set_position(self.submarine.get_image_point(0))
+      self.particle_system.update()
 
       if game.DEBUG:
          print
@@ -84,3 +91,4 @@ class IntroState(BaseState):
    def render(self, canvas):
       canvas.fill(self.background_color)
       self.submarine.draw(canvas)
+      self.particle_system.draw(canvas)

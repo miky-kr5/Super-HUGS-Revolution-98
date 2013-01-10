@@ -82,10 +82,8 @@ class BaseActor(pygame.sprite.Sprite):
         if point < 0 or point > len(self.image_points):
             return (0, 0)
         else:
-            return self.image_points[point]
-
-    def set_image_point_tuple(self, point):
-        self.image_points.append(point)
+            im_point = [self.image_points[point][0] + self.rect.left, self.image_points[point][1] + self.rect.top]
+            return im_point
 
     def set_image_point_xy(self, point_x, point_y):
         self.image_points.append((point_x, point_y))
