@@ -44,6 +44,11 @@ class IntroState(BaseState):
       self.particle_system.set_gravity([0.0, -60.0])
       self.particle_system.set_max_velocity(5.0)
       self.particle_system.start()
+
+      image3 = pygame.image.load('gfx/oneoop.png')
+      self.oneoop_logo = actor.BaseActor(2, image3, "1-Oop logo", False, True, False)
+      self.oneoop_logo.set_position([10 + (image3.get_width() / 2),
+                                     pygame.display.Info().current_h - 10 - (image3.get_height() / 2)])
       
       if game.DEBUG:
          print "Velocity: " + str(self.sine_movement.get_velocity())
@@ -52,7 +57,7 @@ class IntroState(BaseState):
 
    def input(self):
       for event in pygame.event.get():
-         if android:
+         if android is not None:
             if android.check_pause():
                android.wait_for_resume()
 
@@ -70,7 +75,8 @@ class IntroState(BaseState):
    def update(self):
       self.sine_movement.update()
       sm_position = self.sine_movement.get_position()
-      self.submarine.set_position([sm_position[0], self.screen_vertical_half + math.sin(0.05 * float(sm_position[0])) * 42.0])
+      self.submarine.set_position([sm_position[0], 
+                                   self.screen_vertical_half + math.sin(0.05 * float(sm_position[0])) * 42.0])
       self.particle_system.set_position(self.submarine.get_image_point(0))
       self.particle_system.update()
 
@@ -90,5 +96,6 @@ class IntroState(BaseState):
           
    def render(self, canvas):
       canvas.fill(self.background_color)
+      self.oneoop_logo.draw(canvas)
       self.submarine.draw(canvas)
       self.particle_system.draw(canvas)
