@@ -29,13 +29,13 @@ Compilation for Android
 Super HUGS Revolution 98 depends on Python 2.7, Pygame 1.9.1, pgs4a 0.9.4.
 
 To compile Super HUGS Revolution for Android devices you need a
-working installation of Pygame Subset for Android (pgs4a) by
+working instalation of Pygame Subset for Android (pgs4a) by
 Tom Rothamel and Patrick Dawson. pgs4a can be
 found at the following link:
 
     http://pygame.renpy.org/
 
-Follow this steps to compile the game (instrucctions for GNU/Linux systems):
+Follow this steps to compile the game (instructions for GNU/Linux systems):
 
     1) Move the Super-HUGS-Revolution-98 directory inside the pgs4a directory.
     2) Cd to the pgs4a directory.
@@ -55,11 +55,20 @@ To install Super HUGS Revolution on an Android device, use adb:
 
 You can also compile and install with the following command:
 
-    ./android.py build Super-HUGS-Revolution-98 release
-
-To play on a PC just execute the main.py script of Super HUGS Revolution 98.
+    ./android.py build Super-HUGS-Revolution-98 release install
 
 How to play
 -----------
 
-Coming soon.
+Executing:
+To play on a PC execute the main.py script of Super HUGS Revolution 98.To play
+on Android just start the installed app.
+
+Controls:
+Guide Moncho by tapping and holding on the screen wherever you want Moncho to
+move to. On a PC just move the mouse, Moncho will follow it.
+
+Scoring:
+Hug people to increase your score. Every 25 hugs increases the current wave.
+Enemies become more frequent on higher waves. Hug as many people as you can
+before the time runs out.
