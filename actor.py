@@ -30,6 +30,8 @@ class BaseActor(pygame.sprite.Sprite):
         self.image = image
         self.rect = self.image.get_rect()
 
+        self.image_points = []
+
     def get_id(self):
         return self.id
 
@@ -76,6 +78,18 @@ class BaseActor(pygame.sprite.Sprite):
     def set_friction(self, new_friction):
         self.friction = new_friction
 
+    def get_image_point(self, point):
+        if point < 0 or point > len(self.image_points):
+            return (0, 0)
+        else:
+            return self.image_points[point]
+
+    def set_image_point_tuple(self, point):
+        self.image_points.append(point)
+
+    def set_image_point_xy(self, point_x, point_y):
+        self.image_points.append((point_x, point_y))
+
     def draw(self, canvas):
         if self.image is not None:
             canvas.blit(self.image, self.rect)
@@ -87,6 +101,7 @@ class BulletActor(BaseActor):
     """ Actor class with fixed velocity bullet behavior. """
     def __init__(self, id, image, name = "Default", animated = False, visible = True, solid = True, frame_rate = 60.0):
         BaseActor.__init__(self, id, image, name, animated, visible, solid)
+
         self.then = pygame.time.get_ticks()
         self.now = pygame.time.get_ticks()
         self.frame_rate = frame_rate
@@ -119,7 +134,7 @@ class BulletActor(BaseActor):
                 print "NEW VEL Y: " + str((self.velocity[1] * delta_t) * (self.frame_rate / 1000))
             self.position[0] += (self.velocity[0] * delta_t) * (self.frame_rate / 1000)
             self.position[1] += (self.velocity[1] * delta_t) * (self.frame_rate / 1000)
-        self.rect.center = (self.position[0], self.position[1])
+            self.rect.center = (self.position[0], self.position[1])
 
         if game.DEBUG:
             print "NEW POSITION: " + str(self.position)
@@ -127,4 +142,3 @@ class BulletActor(BaseActor):
         # TODO: Update animation frame if any.
 
         self.then = self.now
-        
