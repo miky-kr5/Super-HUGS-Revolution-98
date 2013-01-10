@@ -50,6 +50,7 @@ class BaseActor(pygame.sprite.Sprite):
 
     def set_position(self, new_pos):
         self.position = list(new_pos)
+        self.rect.center = (self.position[0], self.position[1])
 
     def get_velocity(self):
         return self.velocity
