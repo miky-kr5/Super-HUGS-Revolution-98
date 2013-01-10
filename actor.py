@@ -11,7 +11,7 @@ import game
 ACTOR_STATES = { 'IDLE': 0, 'MOVING': 1 }
 
 class BaseActor(pygame.sprite.Sprite):
-    def __init__(self, id, image, name = "Default", animated = False, visible = True, solid = True):
+    def __init__(self, id, image = None, name = "Default", animated = False, visible = True, solid = True):
         pygame.sprite.Sprite.__init__(self)
         
         self.id = id
@@ -74,6 +74,13 @@ class BaseActor(pygame.sprite.Sprite):
 
     def set_friction(self, new_friction):
         self.friction = new_friction
+
+    def draw(self, canvas):
+        if self.image is not None:
+            canvas.blit(self.image, self.rect)
+        else:
+            pygame.draw.rect(canvas, (255, 206, 99), self.rect)
+        
 
 class BulletActor(BaseActor):
     """ Actor class with fixed velocity bullet behavior. """

@@ -65,4 +65,4 @@ class IntroState(BaseState):
           
    def render(self, canvas):
       canvas.fill(self.background_color)
-      canvas.blit(self.sine_movement.image, self.sine_movement.rect)
+      self.sine_movement.draw(canvas)
