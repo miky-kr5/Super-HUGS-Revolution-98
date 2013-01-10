@@ -149,7 +149,7 @@ class ParticleSystem:
                                     float(random.randrange(-self.initial_velocity_max, self.initial_velocity_max))]
                         particle = Particle(
                             int(self.lifespan),
-                            max(min(random.random(), 1.0), 0.5),
+                            max(min(random.random(), 1.0), 0.2),
                             self.texture,
                             list(self.gravity),
                             list(self.position),

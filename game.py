@@ -12,7 +12,6 @@ from intro import IntroState
 from menu import MenuState
 from ingame import InGameState
 from score import ScoreState
-from notvalidstate import NotValidState
 from constants import DEBUG
 
 # The Game class implements the state machine of the game and
@@ -30,10 +29,9 @@ class Game:
         menu = MenuState()
         in_game = InGameState()
         score = ScoreState()
-        not_valid = NotValidState()
         
         # Create a states list.
-        self.state_vector = [intro, menu, in_game, score, not_valid]
+        self.state_vector = [intro, menu, in_game, score]
 
     def get_state(self):
        """ Returns the current state of the game. """
