@@ -1,7 +1,5 @@
 Inmediate things:
     1) Move game.DEBUG to a constants.py file
     2) Add animation support to the BaseActor class.
-    3) Implement a EightDirectionsActor class.
-    4) Finish the IntroState class.
-    5) Finish the MenuState class.
-    6) Add sound support to IntroState and MenuState.
+    3) Finish the MenuState class.
+    4) Add sound support to IntroState and MenuState.
