@@ -7,13 +7,13 @@ from particle import ParticleSystem
 
 def main():
     pygame.init()  
-    pantalla = pygame.display.set_mode([600,400])
+    screen = pygame.display.set_mode([600,400])
     done = False
     clock = pygame.time.Clock()
 
     white = (255,255,255)
 
-    ps = ParticleSystem(0, "Test", 'gfx/burbuja.png')
+    ps = ParticleSystem(0, "Test", 'gfx/burbuja.png', 1000, 1000, 4, -190.0)
     ps.start()
     
     while not done:
@@ -30,6 +30,7 @@ def main():
         ps.draw(screen)
         pygame.display.update()
 
+        pygame.display.set_caption("Test :: FPS " + str(int(clock.get_fps())))
         clock.tick(60)
         
     pygame.quit()

@@ -6,15 +6,19 @@ import random
 
 import pygame
 
+import math_utils
+import game
+
 class Particle(pygame.sprite.Sprite):
-    def __init__(self, lifespan, scale, texture, gravity = [0.0, 9.8], position = [0,0], initial_vel = [100.0, 100.0], frame_rate = 60.0):
+    def __init__(self, lifespan, scale, texture, gravity = [0.0, 9.8], position = [0,0], initial_vel = [100.0, 100.0], friction = 1.0, frame_rate = 60.0):
         pygame.sprite.Sprite.__init__(self)
 
         self.age = 0
         self.lifespan = lifespan
-        self.gravity = [gravity[0] * (1.0 / frame_rate), gravity[1] * (1.0 / frame_rate)]
+        self.gravity = [gravity[0] / frame_rate, gravity[1] / frame_rate]
         self.position = position
-        self.velocity = [initial_vel[0] * (1.0 / frame_rate), initial_vel[1] * (1.0 / frame_rate)] # Pixels per frame.
+        self.velocity = [float(initial_vel[0]) / frame_rate, float(initial_vel[1]) / frame_rate] # Pixels per frame.
+        self.friction = friction
         self.size = (int(float(texture.get_width()) * scale), int(float(texture.get_height()) * scale))
         self.alive = True
         self.frame_rate = frame_rate
@@ -23,8 +27,10 @@ class Particle(pygame.sprite.Sprite):
 
         self.image = pygame.transform.smoothscale(texture, self.size)
         self.rect = self.image.get_rect()
-        
         self.rect.center = (self.position[0], self.position[1])
+
+        self.screen_w = pygame.display.Info().current_w
+        self.screen_h = pygame.display.Info().current_h
 
     def is_alive(self):
         return self.alive
@@ -36,30 +42,42 @@ class Particle(pygame.sprite.Sprite):
         self.gravity = list(gravity)
     
     def update(self):
-        if self.age >= self.lifespan:
-            self.alive = False
-            return None
+        if self.alive:
+            if self.age >= self.lifespan:
+                self.alive = False
+                return None
 
-        now = pygame.time.get_ticks()
-        delta_t = now - self.then
+            now = pygame.time.get_ticks()
+            delta_t = now - self.then
+            
+            self.position[0] += (self.velocity[0] * delta_t) * (self.frame_rate / 1000.0)
+            self.position[1] += (self.velocity[1] * delta_t) * (self.frame_rate / 1000.0)
 
-        self.position[0] += (self.velocity[0] * delta_t) * (self.frame_rate / 1000)
-        self.position[1] += (self.velocity[1] * delta_t) * (self.frame_rate / 1000)
+            self.velocity[0] *= self.friction
+            self.velocity[1] *= self.friction
 
-        self.position[0] += (self.gravity[0] * delta_t) * (self.frame_rate / 1000)
-        self.position[1] += (self.gravity[1] * delta_t) * (self.frame_rate / 1000)
-
-        self.rect.center = (self.position[0], self.position[1])
-
-        self.age += 1
+            self.position[0] += (self.gravity[0] * delta_t) * (self.frame_rate / 1000.0)
+            self.position[1] += (self.gravity[1] * delta_t) * (self.frame_rate / 1000.0)
         
+            self.rect.center = (self.position[0], self.position[1])
+
+            self.age += 1  
+            self.then = now
+
+            if self.rect.center[0] < 0 - self.rect.width or self.rect.center[0] > self.screen_w + self.rect.width:
+                self.kill()
+                return None
+            if self.rect.center[1] < 0 - self.rect.height or self.rect.center[1] > self.screen_h + self.rect.height:
+                self.kill()
+                return None
 
     def draw(self, canvas):
-        canvas.blit(self.image, self.rect)
+        if self.alive:
+            canvas.blit(self.image, self.rect)
         
 
 class ParticleSystem:
-    def __init__(self, id, name, texture_filename, lifespan = 100, max_particles = 1000, parts_per_second = 25, angle = 0):
+    def __init__(self, id, name, texture_filename, lifespan = 1000, max_particles = 1000, parts_per_second = 25, angle = 0):
         self.id = id
         self.name = name
         self.lifespan = lifespan
@@ -70,14 +88,16 @@ class ParticleSystem:
         self.working = False
         self.particles = set()
         self.texture = pygame.image.load(texture_filename)
-        self.miliseconds_left = 1000
         self.part_creation_accum = 0.0
         self.then = pygame.time.get_ticks()
 
-        self.gravity = [0.0, 9.8]
+        self.gravity = [0.0, -60.0]
         self.position = [pygame.display.Info().current_w / 2, pygame.display.Info().current_h / 2]
-        self.initial_velocity = [float(random.randrange(-10, 10)), float(random.randrange(-10, 10))] # Pixels per second.
+        self.initial_velocity_max = 50 # Pixels per second.
         self.frame_rate = 60.0
+
+        self.rectangle = pygame.Rect(0, 0, 25, 25)
+        self.rectangle.center = (self.position[0], self.position[1])
 
         random.seed(None)
 
@@ -90,6 +110,18 @@ class ParticleSystem:
     def stop(self):
         self.working = False
 
+    def set_position(self, position):
+        self.position = list(position)
+
+    def set_gravity(self, gravity):
+        self.gravity = list(gravity)
+
+    def set_max_velocity(self, max_vel):
+        self.initial_velocity_max = max_vel
+
+    def set_angle(self, angle):
+        self.angle = angle
+
     def update(self):
         # Calculate the time delta.
         now = pygame.time.get_ticks()
@@ -101,7 +133,7 @@ class ParticleSystem:
             if not particle.is_alive():
                 remove_set.add(particle)
         self.particles.difference_update(remove_set)
-        
+
         if self.working:            
             # Create new particles if possible.
             if len(self.particles) < self.max_particles:
@@ -110,14 +142,17 @@ class ParticleSystem:
                 parts_needed = int(self.part_creation_accum // 1) 
                 if parts_needed >= 1:
                     for i in range(parts_needed):
+                        velocity = [float(random.randrange(-self.initial_velocity_max, self.initial_velocity_max)),
+                                    float(random.randrange(-self.initial_velocity_max, self.initial_velocity_max))]
                         particle = Particle(
-                            self.lifespan,
+                            int(self.lifespan),
                             random.random(),
                             self.texture,
-                            self.gravity,
-                            self.position,
-                            self.initial_velocity,
-                            self.frame_rate)
+                            list(self.gravity),
+                            list(self.position),
+                            velocity,
+                            0.99,
+                            int(self.frame_rate))
                         self.particles.add(particle)
                     self.part_creation_accum = 0.0
 
@@ -126,10 +161,10 @@ class ParticleSystem:
             particle.update()
         
         # Restart the time counter.
-        if self.miliseconds_left >= 0:
-            self.miliseconds_left = 1000
         self.then = now
 
     def draw(self, canvas):
+        if game.DEBUG:
+            pygame.draw.rect(canvas, (255, 255, 0), self.rectangle)
         for particle in self.particles:
             particle.draw(canvas)
