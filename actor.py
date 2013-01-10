@@ -27,8 +27,14 @@ class BaseActor(pygame.sprite.Sprite):
         self.max_velocity = [0, 0]
         self.friction = 1.0
 
-        self.image = image
-        self.rect = self.image.get_rect()
+        self.color = (255, 206, 99)
+
+        if image is not None:
+            self.image = image
+            self.rect = self.image.get_rect()
+        else:
+            self.image = None
+            self.rect = pygame.rect.Rect(0, 0, 42, 42)
 
         self.image_points = []
 
@@ -46,6 +52,15 @@ class BaseActor(pygame.sprite.Sprite):
 
     def is_solid(self):
         return self.solid
+
+    def get_color(self):
+        return self.color
+
+    def set_color_tuple(self, color):
+        self.color = color
+
+    def set_color_rgb(self, red, green, blue):
+        self.color = (red, green, blue)
 
     def get_position(self):
         return self.position
@@ -92,7 +107,7 @@ class BaseActor(pygame.sprite.Sprite):
         if self.image is not None:
             canvas.blit(self.image, self.rect)
         else:
-            pygame.draw.rect(canvas, (255, 206, 99), self.rect)
+            pygame.draw.rect(canvas, self.color, self.rect)
         
 
 class BulletActor(BaseActor):
