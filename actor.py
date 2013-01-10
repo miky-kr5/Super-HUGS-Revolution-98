@@ -6,12 +6,13 @@ import math
 import pygame
 
 import math_utils
+import game
 
 ACTOR_STATES = { 'IDLE': 0, 'MOVING': 1 }
 
 class BaseActor(pygame.sprite.Sprite):
     def __init__(self, id, image, name = "Default", animated = False, visible = True, solid = True):
-        super(Sprite, self).__init__()
+        pygame.sprite.Sprite.__init__(self)
         
         self.id = id
         self.name = name
@@ -51,7 +52,7 @@ class BaseActor(pygame.sprite.Sprite):
         self.position = list(new_pos)
 
     def get_velocity(self):
-        return self.get_velocity
+        return self.velocity
 
     def set_velocity(self, new_vel):
         self.velocity = list(new_vel)
@@ -76,10 +77,10 @@ class BaseActor(pygame.sprite.Sprite):
 
 class BulletActor(BaseActor):
     """ Actor class with fixed velocity bullet behavior. """
-    def __init__(self, id, image, name = "Default", animated = False, visible = True, solid = True, frame_rate = 60):
-        super(BaseActor, self).__init__(id, image, name, animated, visible, solid)
-        self.then = 0
-        self.now = 0
+    def __init__(self, id, image, name = "Default", animated = False, visible = True, solid = True, frame_rate = 60.0):
+        BaseActor.__init__(self, id, image, name, animated, visible, solid)
+        self.then = pygame.time.get_ticks()
+        self.now = pygame.time.get_ticks()
         self.frame_rate = frame_rate
         self.moving = False
 
@@ -99,13 +100,21 @@ class BulletActor(BaseActor):
         if delta_t < 0:
             delta_t = 0 # Compensatefor overflow of self.now
 
+        if game.DEBUG:
+            print
+            print "Bullet actor: " + self.name
+            print "THEN: " + str(self.then) + " :: NOW: " + str(self.now) + " :: DELTA: " + str(delta_t)
+
         if self.moving:
-            # Then we update it's velocity components compensating for time.
-            self.velocity[0] += (self.velocity[0] * delta_t) * (self.frame_rate / 1000)
-            self.velocity[1] += (self.velocity[1] * delta_t) * (self.frame_rate / 1000)
-        # Finally we take friction into account.
-        self.velocity[0] *= self.friction
-        self.velocity[1] *= self.friction
+            if game.DEBUG:
+                print "NEW VEL X: " + str((self.velocity[0] * delta_t) * (self.frame_rate / 1000))
+                print "NEW VEL Y: " + str((self.velocity[1] * delta_t) * (self.frame_rate / 1000))
+            self.position[0] += (self.velocity[0] * delta_t) * (self.frame_rate / 1000)
+            self.position[1] += (self.velocity[1] * delta_t) * (self.frame_rate / 1000)
+        self.rect.center = (self.position[0], self.position[1])
+
+        if game.DEBUG:
+            print "NEW POSITION: " + str(self.position)
 
         # TODO: Update animation frame if any.
 
