@@ -13,9 +13,7 @@ from menu import MenuState
 from ingame import InGameState
 from score import ScoreState
 from notvalidstate import NotValidState
-
-# Debug constant. Set to False to turn off debugging messages.
-DEBUG = False
+from constants import DEBUG
 
 # The Game class implements the state machine of the game and
 # runs the main game loop.

@@ -14,6 +14,7 @@ from state import BaseState, VALID_STATES
 import actor
 import game
 import particle
+from constants import DEBUG
 
 class IntroState(BaseState):
    def __init__(self):
