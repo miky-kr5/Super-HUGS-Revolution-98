@@ -7,6 +7,7 @@ import random
 import pygame
 
 import math_utils
+import imloader
 
 class Particle(pygame.sprite.Sprite):
     def __init__(self, lifespan, scale, texture, gravity = [0.0, 9.8], position = [0,0], initial_vel = [100.0, 100.0], friction = 1.0, frame_rate = 60.0):
@@ -86,7 +87,7 @@ class ParticleSystem:
         self.angle = angle
         self.working = False
         self.particles = set()
-        self.texture = pygame.image.load(texture_filename)
+        self.texture = imloader.cached_image_loader.get_image_to_screen_percent(texture_filename)
         self.part_creation_accum = 0.0
         self.then = pygame.time.get_ticks()
 

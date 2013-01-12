@@ -14,6 +14,7 @@ from state import BaseState, VALID_STATES
 import actor
 import game
 import particle
+import imloader
 from constants import DEBUG
 
 class IntroState(BaseState):
@@ -25,19 +26,21 @@ class IntroState(BaseState):
 
       self.screen_vertical_half = pygame.display.Info().current_h / 2
 
-      image = pygame.image.load('gfx/burbuja.png')
+      image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/burbuja.png')
+      image2 = imloader.cached_image_loader.get_image_to_screen_percent('gfx/submarino1.png')
+      image3 = imloader.cached_image_loader.get_image_to_screen_percent('gfx/oneoop.png')
+
       self.sine_movement = actor.BulletActor(0, image, "SineMovement", False, True, False)
-      self.sine_movement.set_position([-300, pygame.display.Info().current_h / 2])
+      self.sine_movement.set_position([-(image2.get_width() / 2 + 10), pygame.display.Info().current_h / 2])
       # The next line calculates the horizontal velocity of sine_movement.
       # We want it to cover the width of the screen plus the width of the submarine sprite
       # in 20 seconds. We divide by 60 to obtain the speed in pixels per frame.
-      x_velocity = (float(pygame.display.Info().current_w + 600) / 20.0) / 60.0 
+      x_velocity = (float(pygame.display.Info().current_w + image2.get_width()) / 20.0) / 60.0 
       self.sine_movement.set_velocity([0.5, 0])
       self.sine_movement.move()
 
-      image2 = pygame.image.load('gfx/submarino1.png')
       self.submarine = actor.BaseActor(1, image2, "Submarine", True, True, False)
-      self.submarine.set_image_point_xy(117, 284)
+      self.submarine.set_image_point_xy(int(float(image2.get_width()) * 0.195), int(float(image2.get_height()) * 0.835))
       # Instert second animation frame of the subamrine.
 
       self.particle_system = particle.ParticleSystem(0, "Bubbles", 'gfx/burbuja.png', 1000, 1000, 1, -130.0)
@@ -46,7 +49,6 @@ class IntroState(BaseState):
       self.particle_system.set_max_velocity(5.0)
       self.particle_system.start()
 
-      image3 = pygame.image.load('gfx/oneoop.png')
       self.oneoop_logo = actor.BaseActor(2, image3, "1-Oop logo", False, True, False)
       self.oneoop_logo.set_position([10 + (image3.get_width() / 2),
                                      pygame.display.Info().current_h - 10 - (image3.get_height() / 2)])
