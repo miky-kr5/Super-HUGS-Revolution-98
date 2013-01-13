@@ -9,6 +9,7 @@ try:
 except ImportError:
    android = None
 
+import database
 from game import Game
 
 def main():
@@ -18,6 +19,7 @@ def main():
 
    # Init PyGame.
    pygame.init()
+   pygame.font.init()
    
    if android:
       # Init pgs4a and map Android's back button to PyGame's escape key.
@@ -38,6 +40,7 @@ def main():
    game.game_loop()
 
    # Cleanly terminate PyGame.
+   database.scores.close()
    pygame.quit()
    
 # Required by pgs4a.

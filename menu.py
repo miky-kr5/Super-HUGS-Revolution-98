@@ -1,12 +1,15 @@
-############################################
+###########################################
 # Created on 1-7-2013. Miguel Angel Astor #
-############################################
+###########################################
+# Update score database:
+# UPDATE score SET player_name = ?, score = ? WHERE _id IN (SELECT _id FROM score WHERE score IN (SELECT MIN(score) FROM score))
 import pygame
 try:
    import android
 except ImportError:
    android = None
 
+import database
 from constants import DEBUG
 from imloader import cached_image_loader
 from actor import BaseActor
@@ -57,9 +60,20 @@ class MenuState(BaseState):
        self.back_button.set_position([self.scoreboard.get_position()[0] + image.get_width() - (image.get_width() // 10),
                                       pygame.display.Info().current_h // 2])
        
-       # Load story screen sprites.
+       screen_prop = (42.0 / 768.0)
+       screen_fract = (float(pygame.display.Info().current_h) * screen_prop) / 768.0
+       scale_factor = screen_fract / screen_prop
 
-       # Add sound support.
+       self.font = pygame.font.Font('font/ProfaisalEliteRiqa/Profaisal-EliteRiqaV1.0.ttf', int(42.0 * scale_factor))
+       self.score_1 = None
+       self.score_2 = None
+       self.score_3 = None
+       self.score_4 = None
+       self.score_5 = None
+       
+       self.score_text_x = int(float(image.get_width()) * 0.183) + self.scoreboard.rect.left
+       self.score_text_1_y = int(float(image.get_height()) * 0.300) + self.scoreboard.rect.top
+       self.score_text_inc = int(float(image.get_height()) * 0.112)
 
     def input(self):
        for event in pygame.event.get():
@@ -85,8 +99,22 @@ class MenuState(BaseState):
           if self.current_menu == MENUS['MAIN']:
              if self.quit_button.rect.collidepoint(self.cursor_x, self.cursor_y):
                 self.next_transition = VALID_STATES['QUIT']
+
              elif self.scr_button.rect.collidepoint(self.cursor_x, self.cursor_y):
                 self.current_menu = MENUS['SCORE']
+                # Reload the scores from the database.
+                for row in database.scores.execute('SELECT * FROM score ORDER BY _id'):
+                   if row[0] == 1:
+                      self.score_1 = self.font.render("1) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
+                   elif row[0] == 2:
+                      self.score_2 = self.font.render("2) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
+                   elif row[0] == 3:
+                      self.score_3 = self.font.render("3) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
+                   elif row[0] == 4:
+                      self.score_4 = self.font.render("4) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
+                   else:
+                      self.score_5 = self.font.render("5) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
+
              elif self.new_button.rect.collidepoint(self.cursor_x, self.cursor_y):
                 self.current_menu = MENUS['INTRO']
 
@@ -114,3 +142,29 @@ class MenuState(BaseState):
        elif self.current_menu == MENUS['SCORE']:
           self.scoreboard.draw(canvas)
           self.back_button.draw(canvas)
+
+          if self.score_1 is not None:
+             rect = self.score_1.get_rect()
+             rect.top = self.score_text_1_y
+             rect.left = self.score_text_x
+             canvas.blit(self.score_1, rect)
+          if self.score_2 is not None:
+             rect = self.score_2.get_rect()
+             rect.top = self.score_text_1_y + self.score_text_inc
+             rect.left = self.score_text_x
+             canvas.blit(self.score_2, rect)
+          if self.score_3 is not None:
+             rect = self.score_3.get_rect()
+             rect.top = self.score_text_1_y + (2 * self.score_text_inc)
+             rect.left = self.score_text_x
+             canvas.blit(self.score_3, rect)
+          if self.score_4 is not None:
+             rect = self.score_4.get_rect()
+             rect.top = self.score_text_1_y + (3 * self.score_text_inc)
+             rect.left = self.score_text_x
+             canvas.blit(self.score_4, rect)
+          if self.score_5 is not None:
+             rect = self.score_5.get_rect()
+             rect.top = self.score_text_1_y + (4 * self.score_text_inc)
+             rect.left = self.score_text_x
+             canvas.blit(self.score_5, rect)
