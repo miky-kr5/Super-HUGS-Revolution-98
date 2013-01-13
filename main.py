@@ -28,7 +28,7 @@ def main():
                      pygame.display.Info().current_h)
       screen = pygame.display.set_mode(screen_size)
    else:
-      screen  = pygame.display.set_mode((800, 600),
+      screen  = pygame.display.set_mode((1024, 768),
                                         pygame.FULLSCREEN | pygame.HWSURFACE)
    pygame.display.set_caption("Super HUGS Revolution 98")
    pygame.mouse.set_visible(False)
