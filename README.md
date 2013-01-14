@@ -65,10 +65,20 @@ To play on a PC execute the main.py script of Super HUGS Revolution 98.To play
 on Android just start the installed app.
 
 Controls:
-Guide Moncho by tapping and holding on the screen wherever you want Moncho to
-move to. On a PC just move the mouse, Moncho will follow it.
+Guide Moncho by tapping and holding on the screen wherever you want him to
+move to. On a PC just click with the mouse.
 
 Scoring:
 Hug people to increase your score. Every 25 hugs increases the current wave.
 Enemies become more frequent on higher waves. Hug as many people as you can
 before the time runs out.
+
+Notes
+-----
+
+Super HUGS Revolution 98 uses the track "TELEPORTER" by Danjyon Kimura. The song
+is available under a Creative Commons license in
+http://www.jamendo.com/es/list/a91205/8bit-easter
+
+The fonts Press Start 2P and Profaisal-EliteRiqa are available in
+http://openfontlibrary.org
