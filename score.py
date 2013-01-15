@@ -1,5 +1,8 @@
-# Miguel Angel Astor Romero. Created on 7-1-2013. #
-###################################################
+###########################################
+# Created on 1-7-2013. Miguel Angel Astor #
+###########################################
+# Update score database:
+# UPDATE score SET player_name = ?, score = ? WHERE _id IN (SELECT _id FROM score WHERE score IN (SELECT MIN(score) FROM score))
 import pygame
 
 try:
