@@ -142,6 +142,20 @@ class MenuState(BaseState):
 
        self.user_click = False
 
+    def reload_scores(self):
+       # Reload the scores from the database.
+       for row in database.scores.execute('SELECT * FROM score ORDER BY _id'):
+          if row[0] == 1:
+             self.score_1 = self.font.render("1) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
+          elif row[0] == 2:
+             self.score_2 = self.font.render("2) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
+          elif row[0] == 3:
+             self.score_3 = self.font.render("3) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
+          elif row[0] == 4:
+             self.score_4 = self.font.render("4) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
+          else:
+             self.score_5 = self.font.render("5) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
+
     def input(self):
        for event in pygame.event.get():
           if android:
@@ -167,6 +181,10 @@ class MenuState(BaseState):
           pygame.mouse.set_visible(True)
 
        if self.next_transition != VALID_STATES['QUIT']:
+          if self.next_transition != VALID_STATES['STAY']:
+             # Set next_transition to STAY if the game gets to this state from ScoreState.
+             self.next_transition = VALID_STATES['STAY']
+
           if self.current_menu == MENUS['MAIN']:
              # Check for mouse (tap) collisions with the main menu buttons.
              if self.quit_button.rect.collidepoint(self.cursor_x, self.cursor_y):
@@ -175,27 +193,18 @@ class MenuState(BaseState):
              elif self.scr_button.rect.collidepoint(self.cursor_x, self.cursor_y):
                 # Collision with the high scores button.
                 self.current_menu = MENUS['SCORE']
-                # Reload the scores from the database.
-                for row in database.scores.execute('SELECT * FROM score ORDER BY _id'):
-                   if row[0] == 1:
-                      self.score_1 = self.font.render("1) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
-                   elif row[0] == 2:
-                      self.score_2 = self.font.render("2) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
-                   elif row[0] == 3:
-                      self.score_3 = self.font.render("3) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
-                   elif row[0] == 4:
-                      self.score_4 = self.font.render("4) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
-                   else:
-                      self.score_5 = self.font.render("5) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
+                self.reload_scores()
              elif self.new_button.rect.collidepoint(self.cursor_x, self.cursor_y):
                 # Collision with the new game button.
                 self.current_menu = MENUS['INTRO']
                 self.then = pygame.time.get_ticks()
+
           elif self.current_menu == MENUS['SCORE']:
              # Check for mouse (tap) collisions with the high scores menu buttons.
              if self.back_button.rect.collidepoint(self.cursor_x, self.cursor_y):
                 # Collision with the go back button.
                 self.current_menu = MENUS['MAIN']
+
           elif self.current_menu == MENUS['INTRO']:
              # Wait for a timeout before going to the game.
              now = pygame.time.get_ticks()
@@ -203,10 +212,14 @@ class MenuState(BaseState):
              self.story_time += delta_t
              if self.user_click:
                 # If the user taps or presses a key before the timeout, go to the game.
+                self.user_click = False
+                self.story_time = 0
+                self.current_menu = MENUS['SCORE']
                 self.next_transition = VALID_STATES['IN_GAME']
              elif self.story_time >= self.story_timeout:
                 # After the timeout, reset the time counter and go to the game.
                 self.story_time = 0
+                self.current_menu = MENUS['SCORE']
                 self.next_transition = VALID_STATES['IN_GAME']
              else:
                 # Keep tracking time.
@@ -230,32 +243,34 @@ class MenuState(BaseState):
        elif self.current_menu == MENUS['SCORE']:
           self.scoreboard.draw(canvas)
           self.back_button.draw(canvas)
+          
+          if self.score_1 is None:
+             self.reload_scores()
 
-          if self.score_1 is not None:
-             rect = self.score_1.get_rect()
-             rect.top = self.score_text_1_y
-             rect.left = self.score_text_x
-             canvas.blit(self.score_1, rect)
-          if self.score_2 is not None:
-             rect = self.score_2.get_rect()
-             rect.top = self.score_text_1_y + self.score_text_inc
-             rect.left = self.score_text_x
-             canvas.blit(self.score_2, rect)
-          if self.score_3 is not None:
-             rect = self.score_3.get_rect()
-             rect.top = self.score_text_1_y + (2 * self.score_text_inc)
-             rect.left = self.score_text_x
-             canvas.blit(self.score_3, rect)
-          if self.score_4 is not None:
-             rect = self.score_4.get_rect()
-             rect.top = self.score_text_1_y + (3 * self.score_text_inc)
-             rect.left = self.score_text_x
-             canvas.blit(self.score_4, rect)
-          if self.score_5 is not None:
-             rect = self.score_5.get_rect()
-             rect.top = self.score_text_1_y + (4 * self.score_text_inc)
-             rect.left = self.score_text_x
-             canvas.blit(self.score_5, rect)
+          rect = self.score_1.get_rect()
+          rect.top = self.score_text_1_y
+          rect.left = self.score_text_x
+          canvas.blit(self.score_1, rect)
+
+          rect = self.score_2.get_rect()
+          rect.top = self.score_text_1_y + self.score_text_inc
+          rect.left = self.score_text_x
+          canvas.blit(self.score_2, rect)
+ 
+          rect = self.score_3.get_rect()
+          rect.top = self.score_text_1_y + (2 * self.score_text_inc)
+          rect.left = self.score_text_x
+          canvas.blit(self.score_3, rect)
+          
+          rect = self.score_4.get_rect()
+          rect.top = self.score_text_1_y + (3 * self.score_text_inc)
+          rect.left = self.score_text_x
+          canvas.blit(self.score_4, rect)
+ 
+          rect = self.score_5.get_rect()
+          rect.top = self.score_text_1_y + (4 * self.score_text_inc)
+          rect.left = self.score_text_x
+          canvas.blit(self.score_5, rect)
 
        elif self.current_menu == MENUS['INTRO']:
           rect = self.story_1.get_rect()
