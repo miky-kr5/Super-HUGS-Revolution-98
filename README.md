@@ -77,8 +77,10 @@ Notes
 -----
 
 Super HUGS Revolution 98 uses the track "TELEPORTER" by Danjyon Kimura. The song
-is available under a Creative Commons license in
+is available under a Creative Commons BY-NC-SA license 
+(http://creativecommons.org/licenses/by-nc-sa/3.0/) in
 http://www.jamendo.com/es/list/a91205/8bit-easter
 
 The fonts Press Start 2P and Profaisal-EliteRiqa are available in
-http://openfontlibrary.org
+http://openfontlibrary.org .Check the font directory for more information
+on the fonts.
