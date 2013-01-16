@@ -35,7 +35,7 @@ class ScoreState(BaseState):
        image2 = cached_image_loader.get_image_to_screen_percent('gfx/Fuente/_.png')
        self.underscore_c = BaseActor(1, image2, "Underscore center", False, True, False)
        self.underscore_c.set_position([pygame.display.Info().current_w // 2,
-                                       self.banner.get_position()[1] + image.get_height()])
+                                       self.banner.get_position()[1] + image.get_height() + 25])
        self.underscore_l = BaseActor(2, image2, "Underscore left", False, True, False)
        self.underscore_l.set_position([self.underscore_c.get_position()[0] - image2.get_width(),
                                        self.underscore_c.get_position()[1]])
@@ -73,7 +73,7 @@ class ScoreState(BaseState):
           self.letters[l] = letter_actor
           q_x_position += image.get_width() + letter_sep
 
-       self.letter_y = int((float(pygame.display.Info().current_h) * 240.0 ) / 768.0)
+       self.letter_y = int((float(pygame.display.Info().current_h) * 265.0 ) / 768.0)
 
 
     def input(self):
@@ -155,9 +155,9 @@ class ScoreState(BaseState):
           initial = self.letters[string.lower(self.player_init[i])].image
           position = None
           if i == 0:
-             position = (self.underscore_l.rect.left, self.letter_y - initial.get_height())
+             position = (self.underscore_l.rect.left, self.letter_y - (initial.get_height() // 2))
           elif i == 1:
-             position = (self.underscore_c.rect.left, self.letter_y - initial.get_height())
+             position = (self.underscore_c.rect.left, self.letter_y - (initial.get_height() // 2))
           else:
-             position = (self.underscore_r.rect.left, self.letter_y - initial.get_height())
+             position = (self.underscore_r.rect.left, self.letter_y - (initial.get_height() // 2))
           canvas.blit(initial, position)
