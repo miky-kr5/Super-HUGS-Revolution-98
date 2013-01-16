@@ -115,6 +115,15 @@ class BaseActor(pygame.sprite.Sprite):
     def set_image_point_xy(self, point_x, point_y):
         self.image_points.append((point_x, point_y))
 
+    def remove_image_point(self, im_point):
+        if im_point < 0 or im_point >= len(self.image_points):
+            pass
+        else:
+            self.image_points.pop(im_point)
+
+    def clear_image_points(self):
+        del self.image_points[:]
+
     def test_collision_with_point(self, point):
         return self.rect.collidepoint(point[0], point[1])
 
