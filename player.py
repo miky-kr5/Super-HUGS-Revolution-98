@@ -57,4 +57,4 @@ class Player:
 
 PLAYERS = {}
 for i in range(constants.NUM_PLAYERS):
-    players[i + 1] = Player(i + 1)
+    PLAYERS[i + 1] = Player(i + 1)
