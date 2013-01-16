@@ -31,4 +31,7 @@ class CachedImageLoader:
             self.image_cache[path] = ret_image
             return ret_image
 
+    def clear_cache(self):
+        self.image_cache.clear()
+
 cached_image_loader = CachedImageLoader()
