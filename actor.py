@@ -50,6 +50,18 @@ class BaseActor(pygame.sprite.Sprite):
     def is_visible(self):
         return self.visible
 
+    def set_visible(self, visible):
+        self.visible = visible
+
+    def toggle_visible(self):
+        self.visible = not self.visible
+
+    def make_visible(self):
+        self.visible = True
+
+    def make_invisible(self):
+        self.visible = False
+
     def is_solid(self):
         return self.solid
 
@@ -102,6 +114,9 @@ class BaseActor(pygame.sprite.Sprite):
 
     def set_image_point_xy(self, point_x, point_y):
         self.image_points.append((point_x, point_y))
+
+    def test_collision_with_point(self, point):
+        return self.rect.collidepoint(point[0], point[1])
 
     def draw(self, canvas):
         if self.image is not None:

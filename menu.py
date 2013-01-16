@@ -28,6 +28,8 @@ class MenuState(BaseState):
        
        self.cursor_x = 0
        self.cursor_y = 0
+       
+       self.background_color = (125, 158, 192)
 
        # Load main menu buttons.
        image = cached_image_loader.get_image_to_screen_percent('gfx/logo.png')
@@ -144,7 +146,7 @@ class MenuState(BaseState):
 
     def reload_scores(self):
        # Reload the scores from the database.
-       for row in database.scores.execute('SELECT * FROM score ORDER BY _id'):
+       for row in database.cursor.execute('SELECT * FROM score ORDER BY _id'):
           if row[0] == 1:
              self.score_1 = self.font.render("1) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
           elif row[0] == 2:
@@ -158,7 +160,7 @@ class MenuState(BaseState):
 
     def input(self):
        for event in pygame.event.get():
-          if android:
+          if android is not None:
              if android.check_pause():
                 android.wait_for_resume()
 
@@ -184,6 +186,12 @@ class MenuState(BaseState):
           if self.next_transition != VALID_STATES['STAY']:
              # Set next_transition to STAY if the game gets to this state from ScoreState.
              self.next_transition = VALID_STATES['STAY']
+             # Reset the scores label to force a database reload.
+             self.score_1 = None
+             self.score_2 = None
+             self.score_3 = None
+             self.score_4 = None
+             self.score_5 = None
 
           if self.current_menu == MENUS['MAIN']:
              # Check for mouse (tap) collisions with the main menu buttons.
@@ -225,7 +233,7 @@ class MenuState(BaseState):
                 # Keep tracking time.
                 self.then = now
 
-       # Recenter the mouse pointer.
+       # Reset the mouse pointer.
        self.cursor_x = 0
        self.cursor_y = 0
 
