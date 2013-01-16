@@ -28,6 +28,7 @@ class IntroState(BaseState):
 
       image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/burbuja.png')
       image2 = imloader.cached_image_loader.get_image_to_screen_percent('gfx/submarino1.png')
+      image4 = imloader.cached_image_loader.get_image_to_screen_percent('gfx/submarino2.png')
       image3 = imloader.cached_image_loader.get_image_to_screen_percent('gfx/oneoop.png')
 
       self.sine_movement = actor.BulletActor(0, image, "SineMovement", False, True, False)
@@ -41,7 +42,8 @@ class IntroState(BaseState):
 
       self.submarine = actor.BaseActor(1, image2, "Submarine", True, True, False)
       self.submarine.set_image_point_xy(int(float(image2.get_width()) * 0.195), int(float(image2.get_height()) * 0.835))
-      # Instert second animation frame of the subamrine.
+      self.submarine.set_fps(10)
+      self.submarine.add_frame(image4)
 
       self.particle_system = particle.ParticleSystem(0, "Bubbles", 'gfx/burbuja.png', 1000, 1000, 1, -130.0)
       self.particle_system.set_friction(1.0)

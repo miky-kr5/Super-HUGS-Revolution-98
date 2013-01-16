@@ -20,6 +20,13 @@ class BaseActor(pygame.sprite.Sprite):
         self.visible = visible
         self.solid = solid
 
+        self.fps = 60
+        self.frames = []
+        self.time_per_frame = int(1000.0 / float(self.fps))
+        self.current_frame = 0
+        self.anim_then = pygame.time.get_ticks()
+        self.stopped = False
+
         self.angle = 0.0
         self.position = [0, 0]
         self.velocity = [0, 0]
@@ -30,7 +37,8 @@ class BaseActor(pygame.sprite.Sprite):
         self.color = (255, 206, 99)
 
         if image is not None:
-            self.image = image
+            self.image = image.copy()
+            self.frames.append(self.image)
             self.rect = self.image.get_rect()
         else:
             self.image = None
@@ -105,6 +113,37 @@ class BaseActor(pygame.sprite.Sprite):
     def set_friction(self, new_friction):
         self.friction = new_friction
 
+    def get_fps(self):
+        return self.fps
+    
+    def set_fps(self, fps):
+        self.fps = fps
+        self.time_per_frame = int(1000.0 / float(self.fps))
+
+    def resume_animation(self):
+        self.stopped = False
+
+    def stop_animation(self):
+        self.stopped = True
+
+    def add_frame(self, frame):
+        self.frames.append(frame.copy())
+
+    def change_frame(self, frame_index, frame):
+        if frame_index < 0 or frame_index >= len(self.frames):
+            pass
+        else:
+            self.frames[frame_index] = frame.copy()
+
+    def remove_frame(self, frame_index):
+        if frame_index < 1 or frame_index >= len(self.frames):
+            # The first frame (frame 0) cannot be removed.
+            pass
+        else:
+            self.frames.pop(im_point)
+            if self.current_frame >= len(self.frames):
+                self.current_frame = len(self.frames) - 1
+
     def get_image_point(self, point):
         if point < 0 or point > len(self.image_points):
             return (0, 0)
@@ -129,7 +168,18 @@ class BaseActor(pygame.sprite.Sprite):
 
     def draw(self, canvas):
         if self.image is not None:
-            canvas.blit(self.image, self.rect)
+            if not self.animated:
+                canvas.blit(self.image, self.rect)
+            else:
+                anim_now = pygame.time.get_ticks()
+                delta_t = anim_now - self.anim_then
+                if not self.stopped and delta_t >= self.time_per_frame:
+                    self.current_frame = (self.current_frame + (delta_t // self.time_per_frame)) % len(self.frames)
+                    self.anim_then = anim_now
+                frame = self.frames[self.current_frame]
+                frame_rect = frame.get_rect()
+                frame_rect.center = (self.position[0], self.position[1])
+                canvas.blit(frame, frame_rect)
         else:
             pygame.draw.rect(canvas, self.color, self.rect)
         
