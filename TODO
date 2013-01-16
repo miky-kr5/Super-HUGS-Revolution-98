@@ -1,7 +1,7 @@
 Inmediate things:
-    1) Add animation support to the BaseActor class.
-    2) Add sound support to IntroState and MenuState.
-    3) Implement the before-game intro.
-    4) Implement the score state.
-    5) Add clear_cache method to ChachedImageLoader.
-    6) Add remove_image_point method to BaseActor.
+    1) Add basic animation support to the BaseActor class.
+    2) Add sound support to the BaseState subclasses.
+    3) Implement the 8 directional actor subclass.
+    4) Implement the global player object.
+    5) Take the score from the global player object in ScoreState.
+    6) Implement the NPC's based on the 8 directional actor subclass.
