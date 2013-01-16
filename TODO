@@ -1,9 +1,8 @@
 Stuff left:
-    1) Add basic animation support to the BaseActor class.
-    2) Add sound support to the BaseState subclasses.
-    3) Implement the 8 directional actor subclass.
-    4) Implement the global player object.
-    5) Take the score from the global player object in ScoreState.
-    6) Implement the NPC's based on the 8 directional actor subclass.
-    7) Center the letters in ScoreState and the story labels in MenuState.
-    8) Comment everything.
+    1) Add sound support to the BaseState subclasses.
+    2) Implement the 8 directional actor subclass.
+    3) Implement the NPC's based on the 8 directional actor subclass.
+    4) Implement the NPC spawners.
+    5) Implement tiled backgrounds.
+    6) Center the letters in ScoreState and the story labels in MenuState.
+    7) Comment everything.
