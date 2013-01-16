@@ -9,6 +9,7 @@ try:
 except ImportError:
    android = None
 
+import player
 import database
 from constants import DEBUG
 from imloader import cached_image_loader
@@ -118,8 +119,7 @@ class ScoreState(BaseState):
 
           if self.done_button.is_visible() and self.done_button.test_collision_with_point((self.cursor_x, self.cursor_y)):
              # If the user clicked on the done button, insert the score in the database and go to the main menu.
-             # TODO: Replace the 0 on the following line with player.get_score()
-             score = (str(self.player_init[0] + self.player_init[1] + self.player_init[2]), 0)
+             score = (str(self.player_init[0] + self.player_init[1] + self.player_init[2]), player.PLAYERS[1].get_score())
              database.cursor.execute('UPDATE score SET player_name = ?, score = ? WHERE _id IN (SELECT _id FROM score WHERE score IN (SELECT MIN(score) FROM score))', score)
              database.scores.commit()
              # Don't forget to reset the initials list.
