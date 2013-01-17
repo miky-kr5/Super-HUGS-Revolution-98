@@ -6,16 +6,23 @@ import pygame
 import imloader
 from constants import DEBUG
 class TiledBackground():
-    def __init__(self, rep_x, rep_y, texture_filename, position_x = 0, position_y = 0):
+    def __init__(self, width, height, texture_filename, position_x = 0, position_y = 0):
+        self.w = width
+        self.h = height
         self.position = (position_x, position_y)
         
         texture = imloader.cached_image_loader.get_image_to_screen_percent(texture_filename)
         img_w = texture.get_width()
         img_h = texture.get_height()
 
-        self.w = img_w * rep_x
-        self.h = img_h * rep_y
-
+        rep_x = (self.w // img_w) + 1
+        rep_y = (self.h // img_h) + 1
+        if width == -1:
+            rep_x = 1
+            self.w = img_w
+        if height == -1:
+            rep_y = 1
+            self.h = img_h
         if DEBUG:
             print '(' + str(rep_x) + ', ' + str(rep_y) + ')'
 
