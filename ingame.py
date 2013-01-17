@@ -32,22 +32,19 @@ class InGameState(BaseState):
        self.background = pygame.Surface((bg_w, bg_h))
 
        # Create the floor.
-       floor = background.TiledBackground(bg_w, bg_h, 'gfx/piso.png')
+       floor = background.TiledBackground(20, 16, 'gfx/piso.png')
 
        # Create the walls for the top and the bottom (the same for both).
-       bg_h = int((80.0 * float(pygame.display.Info().current_h)) / 768.0)
-       walls_top = background.TiledBackground(bg_w, bg_h, 'gfx/Pared.png')
+       walls_top = background.TiledBackground(15, 1, 'gfx/Pared.png')
        bg_y = int(((1024.0 - 80.0) * float(pygame.display.Info().current_h)) / 768.0)
 
        # Create the left walls.
-       bg_w = int((40.0 * float(pygame.display.Info().current_w)) / 1024.0)
-       bg_h = int(((1024.0 - 160) * float(pygame.display.Info().current_h)) / 768.0)
-       walls_left = background.TiledBackground(bg_w, bg_h, 'gfx/Pared2.png')
+       walls_left = background.TiledBackground(1, 12, 'gfx/Pared2.png')
        _y = int((80.0 * float(pygame.display.Info().current_h)) / 768.0)
        walls_left.set_position((0, _y))
 
        # Create the right walls.
-       walls_right = background.TiledBackground(bg_w, bg_h, 'gfx/Pared3.png')
+       walls_right = background.TiledBackground(1, 12, 'gfx/Pared3.png')
        _x = int(((1280.0 - 40.0) * float(pygame.display.Info().current_h)) / 768.0)
        walls_right.set_position((_x, _y))
 
@@ -55,10 +52,10 @@ class InGameState(BaseState):
        floor.draw(self.background)
        walls_top.set_position((0, 0))
        walls_top.draw(self.background)
-       walls_top.set_position((0, bg_y))
-       walls_top.draw(self.background)
        walls_left.draw(self.background)
        walls_right.draw(self.background)
+       walls_top.set_position((0, bg_y))
+       walls_top.draw(self.background)
 
     def input(self):
        for event in pygame.event.get():
@@ -91,5 +88,5 @@ class InGameState(BaseState):
 
     def render(self, canvas):
        canvas.fill(self.background_color)
-       canvas.blit(self.background, (0, 0))
+       canvas.blit(self.background, (0, -1024 / 2))
        pygame.draw.rect(canvas, (255, 0, 255), self.rectangle)
