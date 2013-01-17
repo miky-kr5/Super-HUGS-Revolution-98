@@ -23,29 +23,27 @@ class InGameState(BaseState):
        self.cursor_y = 0
        self.user_click = False
 
-       screen_center = self.get_screen_center()
-       self.rectangle = pygame.Rect(screen_center[0] - 50, screen_center[1] - 50, 100, 100)
-
        # Create a surface for the background.
-       bg_w = 1280
-       bg_h = 1024
+       bg_w = int(float(pygame.display.Info().current_w * 1280) / 1024.0)
+       bg_h = int(float(pygame.display.Info().current_h * 1024) / 768.0)
        self.background = pygame.Surface((bg_w, bg_h))
 
        # Create the floor.
-       floor = background.TiledBackground(1280, 1024, 'gfx/piso.png')
+       floor = background.TiledBackground(bg_w, bg_h, 'gfx/piso.png')
 
        # Create the walls for the top and the bottom (the same for both).
        bg_h = int((80.0 * float(pygame.display.Info().current_h)) / 768.0)
-       walls_top = background.TiledBackground(1280, bg_h, 'gfx/Pared.png')
+       walls_top = background.TiledBackground(bg_w, bg_h, 'gfx/Pared.png')
        bg_y = 1024 - int((80.0 * float(pygame.display.Info().current_h)) / 768.0)
 
        # Create the left walls.
-       walls_left = background.TiledBackground(-1, 1024, 'gfx/Pared2.png')
+       bg_h = int(float(pygame.display.Info().current_h * 1024) / 768.0)
+       walls_left = background.TiledBackground(-1, bg_h, 'gfx/Pared2.png')
        _y = int((80.0 * float(pygame.display.Info().current_h)) / 768.0)
        walls_left.set_position((0, _y))
 
        # Create the right walls.
-       walls_right = background.TiledBackground(-1, 1024, 'gfx/Pared3.png')
+       walls_right = background.TiledBackground(-1, bg_h, 'gfx/Pared3.png')
        _x = 1280 - int((40.0 * float(pygame.display.Info().current_w)) / 1024.0)
        walls_right.set_position((_x, _y))
 
@@ -90,4 +88,3 @@ class InGameState(BaseState):
     def render(self, canvas):
        canvas.fill(self.background_color)
        canvas.blit(self.background, (0, 0))
-       pygame.draw.rect(canvas, (255, 0, 255), self.rectangle)
