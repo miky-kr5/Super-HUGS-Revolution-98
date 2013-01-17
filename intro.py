@@ -36,9 +36,10 @@ class IntroState(BaseState):
       # The next line calculates the horizontal velocity of sine_movement.
       # We want it to cover the width of the screen plus the width of the submarine sprite
       # in 20 seconds. We divide by 60 to obtain the speed in pixels per frame.
-      x_velocity = (float(pygame.display.Info().current_w + image2.get_width()) / 20.0) / 60.0 
-      self.sine_movement.set_velocity([0.5, 0])
+      x_velocity = (float(pygame.display.Info().current_w + image2.get_width()) / 26.0) / 60.0 
+      self.sine_movement.set_velocity([x_velocity, 0])
       self.sine_movement.move()
+      self.w_extra = int((305.0 * pygame.display.Info().current_w) / 1024.0)
 
       self.submarine = actor.BaseActor(1, image2, "Submarine", True, True, False)
       self.submarine.set_image_point_xy(int(float(image2.get_width()) * 0.195), int(float(image2.get_height()) * 0.835))
@@ -104,7 +105,7 @@ class IntroState(BaseState):
 
       if self.next_transition != VALID_STATES['QUIT']:
          sm_position = self.sine_movement.get_position()
-         if sm_position[0] > pygame.display.Info().current_w + 300:
+         if sm_position[0] > pygame.display.Info().current_w + self.w_extra:
             self.next_transition = VALID_STATES['MENU']
 
       return self.next_transition
