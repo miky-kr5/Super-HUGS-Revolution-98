@@ -16,6 +16,8 @@ class InGameState(BaseState):
     def __init__(self):
        BaseState.__init__(self)
 
+       self.background_color = (125, 158, 192)
+
        self.next_transition = VALID_STATES['STAY']
        self.cursor_x = 0
        self.cursor_y = 0
@@ -24,7 +26,39 @@ class InGameState(BaseState):
        screen_center = self.get_screen_center()
        self.rectangle = pygame.Rect(screen_center[0] - 50, screen_center[1] - 50, 100, 100)
 
-       self.background = background.TiledBackground(1280, 1024, 'gfx/piso.png')
+       # Create a surface for the background.
+       bg_w = int((1280.0 * float(pygame.display.Info().current_w)) / 1024.0)
+       bg_h = int((1024.0 * float(pygame.display.Info().current_h)) / 768.0)
+       self.background = pygame.Surface((bg_w, bg_h))
+
+       # Create the floor.
+       floor = background.TiledBackground(bg_w, bg_h, 'gfx/piso.png')
+
+       # Create the walls for the top and the bottom (the same for both).
+       bg_h = int((80.0 * float(pygame.display.Info().current_h)) / 768.0)
+       walls_top = background.TiledBackground(bg_w, bg_h, 'gfx/Pared.png')
+       bg_y = int(((1024.0 - 80.0) * float(pygame.display.Info().current_h)) / 768.0)
+
+       # Create the left walls.
+       bg_w = int((40.0 * float(pygame.display.Info().current_w)) / 1024.0)
+       bg_h = int(((1024.0 - 160) * float(pygame.display.Info().current_h)) / 768.0)
+       walls_left = background.TiledBackground(bg_w, bg_h, 'gfx/Pared2.png')
+       _y = int((80.0 * float(pygame.display.Info().current_h)) / 768.0)
+       walls_left.set_position((0, _y))
+
+       # Create the right walls.
+       walls_right = background.TiledBackground(bg_w, bg_h, 'gfx/Pared3.png')
+       _x = int(((1280.0 - 40.0) * float(pygame.display.Info().current_h)) / 768.0)
+       walls_right.set_position((_x, _y))
+
+       # Build the background image.
+       floor.draw(self.background)
+       walls_top.set_position((0, 0))
+       walls_top.draw(self.background)
+       walls_top.set_position((0, bg_y))
+       walls_top.draw(self.background)
+       walls_left.draw(self.background)
+       walls_right.draw(self.background)
 
     def input(self):
        for event in pygame.event.get():
@@ -56,5 +90,6 @@ class InGameState(BaseState):
        return self.next_transition
 
     def render(self, canvas):
-       self.background.draw(canvas)
+       canvas.fill(self.background_color)
+       canvas.blit(self.background, (0, 0))
        pygame.draw.rect(canvas, (255, 0, 255), self.rectangle)

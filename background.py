@@ -20,7 +20,7 @@ class TiledBackground():
         if DEBUG:
             print '(' + str(rep_x) + ', ' + str(rep_y) + ')'
 
-        self.image = pygame.Surface((self.w, self.h))
+        self.image = pygame.Surface((self.w, self.h), pygame.SRCALPHA)
         render_x = 0
         render_y = 0
         for i in range(rep_x):
