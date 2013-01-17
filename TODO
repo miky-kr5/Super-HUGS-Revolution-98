@@ -3,6 +3,5 @@ Stuff left:
     2) Implement the 8 directional actor subclass.
     3) Implement the NPC's based on the 8 directional actor subclass.
     4) Implement the NPC spawners.
-    5) Implement tiled backgrounds.
-    6) Center the letters in ScoreState and the story labels in MenuState.
-    7) Comment everything.
+    5) Center the letters in ScoreState and the story labels in MenuState.
+    6) Comment everything.
