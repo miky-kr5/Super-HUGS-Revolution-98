@@ -5,5 +5,3 @@ Stuff left:
     4) Implement the NPC spawners.
     5) Center the letters in ScoreState and the story labels in MenuState.
     6) Comment everything.
-    7) Fix the size of the background image again. Use this size:
-          W: CURRENT_W + 256 -- H: CURRENT_H + 256
