@@ -9,6 +9,7 @@ VALID_STATES = { 'INTRO':0, 'MENU':1, 'IN_GAME':2, 'SCORE':3, 'STAY':4, 'QUIT':8
 class BaseState:
     def __init__(self):
         self.background_color = (139, 210, 228)
+        self.screen_center = (pygame.display.Info().current_w / 2, pygame.display.Info().current_h / 2)
 
     def input(self):
         """ Empty. Should handle PyGame input. """
@@ -23,5 +24,4 @@ class BaseState:
         canvas.fill(self.background_color)
 
     def get_screen_center(self):
-        return (pygame.display.Info().current_w / 2,
-                pygame.display.Info().current_h / 2)
+        return self.screen_center
