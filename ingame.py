@@ -9,6 +9,7 @@ try:
 except ImportError:
    android = None
 
+import math_utils
 import player
 import background
 import imloader
@@ -21,7 +22,7 @@ class InGameState(BaseState):
 
        self.background_color = (125, 158, 192)
 
-       self.next_transition = VALID_STATES['STAY']
+       self.next_transition = VALID_STATES['SCORE']
        self.cursor_x = 0
        self.cursor_y = 0
        self.user_click = False
@@ -30,15 +31,22 @@ class InGameState(BaseState):
        self.bckg_y = 0
 
        play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_idle_front.png')
-       self.player = actor.BaseActor(0, play_img, "Player", False)
+       self.player = actor.OmnidirectionalActor(0, play_img, "Player", False)
+       self.player.set_angle(90)
+       self.player.set_velocity([0, 0])
 
        # Create a surface for the background.
        bg_w = int(float(pygame.display.Info().current_w * 1280) / 1024.0)
        bg_h = int(float(pygame.display.Info().current_h * 1024) / 768.0)
        self.background = pygame.Surface((bg_w, bg_h))
+       self.game_area = pygame.Surface((bg_w, bg_h))
 
        # Center the player.
        self.player.set_position([bg_w // 2, bg_h // 2])
+       constraints = [int((95.0 * float(pygame.display.Info().current_w)) / 1024.0),
+                      bg_w - int((95.0 * float(pygame.display.Info().current_w)) / 1024.0),
+                      int((155.0 * float(pygame.display.Info().current_h)) / 768.0),
+                      bg_h - int((155.0 * float(pygame.display.Info().current_h)) / 768.0)]
 
        # Create the floor.
        floor = background.TiledBackground(bg_w, bg_h, 'gfx/piso.png')
@@ -70,9 +78,16 @@ class InGameState(BaseState):
 
        # Center the view on the player
        p_pos = self.player.get_position()
-       (dist_x, dist_y) = (math.fabs(self.screen_center[0] - p_pos[0]), math.fabs(self.screen_center[0] - p_pos[0]))
+       (dist_x, dist_y) = (math.fabs(self.screen_center[0] - p_pos[0]), math.fabs(self.screen_center[1] - p_pos[1]))
        self.bckg_x -= dist_x
        self.bckg_y -= dist_y
+                      
+       self.player.set_constraints(constraints)
+
+       self.cursor_x = self.screen_center[0]
+       self.cursor_y = self.screen_center[1]
+       self.vec_1 = (float(pygame.display.Info().current_w) - float(self.screen_center[0]), 0.0)
+       self.vec_1 = math_utils.normalize_vector_2D(self.vec_1)
 
     def input(self):
        for event in pygame.event.get():
@@ -87,22 +102,36 @@ class InGameState(BaseState):
           if event.type == pygame.QUIT:
              self.next_transition = VALID_STATES['QUIT']
 
-          # Catch the position of a mouse click (or tap).
           if event.type == pygame.MOUSEBUTTONDOWN:
-             (self.cursor_x, self.cursor_y) = event.pos
              self.user_click = True
+             self.player.move()
+
+          if event.type == pygame.MOUSEBUTTONUP:
+             self.user_click = False
+             self.player.stop()
+
+          if self.user_click:
+             (self.cursor_x, self.cursor_y) = pygame.mouse.get_pos()
 
     def update(self):
        if self.next_transition != VALID_STATES['QUIT']:
           if self.next_transition != VALID_STATES['STAY']:
              self.next_transition = VALID_STATES['STAY']
+             self.player.reset_then()
+
+          if self.cursor_x != self.screen_center[0] or self.cursor_y != self.screen_center[1]:
+             vec_2 = (float(self.cursor_x) - float(self.screen_center[0]), float(self.cursor_y) - float(self.screen_center[1]))
+             vec_2 = math_utils.normalize_vector_2D(vec_2)
+             self.player.set_angle(math_utils.angle_vectors_2D(self.vec_1, vec_2))
+
+          self.player.update()
 
           # Reset the view.
           self.bckg_x = 0
           self.bckg_y = 0
           # Get the manhattan distance between the screen center and the player.
           p_pos = self.player.get_position()
-          (dist_x, dist_y) = (math.fabs(self.screen_center[0] - p_pos[0]), math.fabs(self.screen_center[0] - p_pos[0]))
+          (dist_x, dist_y) = (math.fabs(self.screen_center[0] - p_pos[0]), math.fabs(self.screen_center[1] - p_pos[1]))
           # Center the view on the player.
           self.bckg_x -= dist_x
           self.bckg_y -= dist_y
@@ -117,16 +146,15 @@ class InGameState(BaseState):
           if self.bckg_x + self.background.get_width() < pygame.display.Info().current_w:
              self.bckg_x += pygame.display.Info().current_w - (self.bckg_x + self.background.get_width())
 
-          #if self.user_click:
-          #   self.next_transition = VALID_STATES['SCORE']
-          #   self.user_click = False
+       self.cursor_x = self.screen_center[0]
+       self.cursor_y = self.screen_center[1]
 
        return self.next_transition
 
     def render(self, canvas):
-       canvas.fill(self.background_color)
+       self.game_area.blit(self.background, (0, 0))
        
        # Blit everything to the bacground.
-       self.player.draw(self.background)
+       self.player.draw(self.game_area)
        
-       canvas.blit(self.background, (self.bckg_x, self.bckg_y))
+       canvas.blit(self.game_area, (self.bckg_x, self.bckg_y))

@@ -208,7 +208,7 @@ class BulletActor(BaseActor):
         self.now = pygame.time.get_ticks()
         delta_t = self.now - self.then
         if delta_t < 0:
-            delta_t = 0 # Compensatefor overflow of self.now
+            delta_t = 0 # Compensate for overflow of self.now
 
         if game.DEBUG:
             print
@@ -221,11 +221,80 @@ class BulletActor(BaseActor):
                 print "NEW VEL Y: " + str((self.velocity[1] * delta_t) * (self.frame_rate / 1000))
             self.position[0] += (self.velocity[0] * delta_t) * (self.frame_rate / 1000)
             self.position[1] += (self.velocity[1] * delta_t) * (self.frame_rate / 1000)
-            self.rect.center = (self.position[0], self.position[1])
+        self.rect.center = (self.position[0], self.position[1])
 
         if game.DEBUG:
             print "NEW POSITION: " + str(self.position)
 
-        # TODO: Update animation frame if any.
-
         self.then = self.now
+
+class OmnidirectionalActor(BaseActor):
+    def __init__(self, id, image, name = "Default", animated = False, visible = True, solid = True, frame_rate = 60.0):
+        BaseActor.__init__(self, id, image, name, animated, visible, solid)
+
+        self.angle = 0.0
+        self.then = pygame.time.get_ticks()
+        self.frame_rate = frame_rate
+        self.moving = False
+
+        self.friction = 0.90
+
+        self.constraint_min_x = 0
+        self.constraint_min_y = 0
+        self.constraint_max_x = 1024
+        self.constraint_max_y = 768
+
+    def is_moving(self):
+        return self.moving
+
+    def move(self):
+        self.moving = True
+
+    def stop(self):
+        self.moving = False
+
+    def get_angle(self):
+        return self.angle
+
+    def set_angle(self, angle):
+        self.angle = float(angle)
+
+    def set_constraints(self, constraints):
+        self.constraint_min_x = constraints[0]
+        self.constraint_min_y = constraints[2]
+        self.constraint_max_x = constraints[1]
+        self.constraint_max_y = constraints[3]
+
+    def reset_then(self):
+        self.then = pygame.time.get_ticks()
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        delta_t = now - self.then
+        if delta_t < 0:
+            delta_t = 0 # Compensate for overflow of now
+            
+        if self.moving:
+            direction = math_utils.angle_to_vector(self.angle)
+
+            self.velocity[0] += direction[0] * 0.9
+            self.velocity[1] += direction[1] * 0.9
+
+        self.position[0] += (self.velocity[0] * delta_t) * (self.frame_rate / 1000)
+        self.position[1] += (self.velocity[1] * delta_t) * (self.frame_rate / 1000)
+
+        if self.position[0] < self.constraint_min_x:
+            self.position[0] = self.constraint_min_x
+        if self.position[0] > self.constraint_max_x:
+            self.position[0] = self.constraint_max_x
+        if self.position[1] < self.constraint_min_y:
+            self.position[1] = self.constraint_min_y
+        if self.position[1] > self.constraint_max_y:
+            self.position[1] = self.constraint_max_y
+            
+        self.velocity[0] *= self.friction
+        self.velocity[1] *= self.friction
+
+        self.rect.center = (self.position[0], self.position[1])
+
+        self.then = now
