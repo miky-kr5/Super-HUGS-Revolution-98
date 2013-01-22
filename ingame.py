@@ -36,9 +36,38 @@ class InGameState(BaseState):
        self.bckg_y = 0
 
        play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_idle_front.png')
-       self.player = actor.OmnidirectionalActor(0, play_img, "Player", False)
-       self.player.set_angle(90)
+       self.player = actor.OmnidirectionalActor(0, play_img, "Player", True)
+       self.player.set_fps(5)
+       self.player.set_angle(math_utils.PI / 2.0)
        self.player.set_velocity([0, 0])
+
+       # Add idle frames to the player:
+       play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_idle_side.png')
+       self.player.add_idle_frame(play_img)
+       play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_idle_front.png')
+       self.player.add_idle_frame(play_img)
+       play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_idle_side2.png')
+       self.player.add_idle_frame(play_img)
+       play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_idle_back.png')
+       self.player.add_idle_frame(play_img)
+
+       # Add moving frames to the player.
+       play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_walk_side_HUG_1.png')
+       self.player.add_moving_frame(play_img)
+       play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_walk_side_HUG_2.png')
+       self.player.add_moving_frame(play_img)
+       play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_walk_HUG_front_1.png')
+       self.player.add_moving_frame(play_img)
+       play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_walk_HUG_front_2.png')
+       self.player.add_moving_frame(play_img)
+       play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_walk_side_HUG_1_flipped.png')
+       self.player.add_moving_frame(play_img)
+       play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_walk_side_HUG_2_flipped.png')
+       self.player.add_moving_frame(play_img)
+       play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_walk_back_HUG_1.png')
+       self.player.add_moving_frame(play_img)
+       play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_walk_back_HUG_2.png')
+       self.player.add_moving_frame(play_img)
 
        # Create a surface for the background.
        bg_w = int(float(pygame.display.Info().current_w * 1280) / 1024.0)
@@ -163,7 +192,7 @@ class InGameState(BaseState):
              self.player.reset_then()
              self.then = pygame.time.get_ticks()
 
-          self.done = not player.PLAYERS[1].is_alive()
+          #self.done = not player.PLAYERS[1].is_alive()
 
           now = pygame.time.get_ticks()
           delta_t = now - self.then
@@ -172,6 +201,7 @@ class InGameState(BaseState):
              self.then = now
              if self.time_left <= 0:
                 player.PLAYERS[1].kill()
+                self.done = True
 
           if not self.done:
              if self.cursor_x != self.screen_center[0] or self.cursor_y != self.screen_center[1]:
@@ -184,28 +214,34 @@ class InGameState(BaseState):
                 vec_2 = math_utils.normalize_vector_2D(vec_2)
                 self.player.set_angle(math_utils.angle_vectors_2D(self.vec_1, vec_2))
 
-                self.player.update()
+             self.player.update()
 
-                self.score_text = self.font.render("Puntos:   " + str(player.PLAYERS[1].get_score()), True, (0, 0, 0))
-                if self.time_left > 30:
-                   self.time_text = self.font.render("Tiempo:   " + str(self.time_left), True, (0, 0, 0))
-                else:
-                   self.time_text = self.font.render("Tiempo:   " + str(max(self.time_left, 0)), True, (255, 0, 0))
-                self.wave_text = self.font.render("Oleada:   " + str(self.wave), True, (0, 0, 0))
+             self.score_text = self.font.render("Puntos:   " + str(player.PLAYERS[1].get_score()), True, (0, 0, 0))
+             if self.time_left > 30:
+                self.time_text = self.font.render("Tiempo:   " + str(self.time_left), True, (0, 0, 0))
+             else:
+                self.time_text = self.font.render("Tiempo:   " + str(max(self.time_left, 0)), True, (255, 0, 0))
+             self.wave_text = self.font.render("Oleada:   " + str(self.wave), True, (0, 0, 0))
 
              self.recenter_view()
 
           elif self.time_left < -3:
+             # Reset everything.
              self.time_left = 190
              self.wave = 0
-             self.player.set_angle(90)
-             self.player.set_velocity([0, 0])
              self.user_click = False
              self.done = False
+
+             # Reset the player.
+             self.player.set_angle(90)
+             self.player.set_velocity([0, 0])
              self.player.stop()
              bg_w = int(float(pygame.display.Info().current_w * 1280) / 1024.0)
              bg_h = int(float(pygame.display.Info().current_h * 1024) / 768.0)
              self.player.set_position([bg_w // 2, bg_h // 2])
+
+             # TODO: Destroy all NPC's.
+
              player.PLAYERS[1].revive()
              self.next_transition = VALID_STATES['SCORE']
 

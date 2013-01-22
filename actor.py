@@ -244,8 +244,12 @@ class OmnidirectionalActor(BaseActor):
         self.constraint_max_x = 1024
         self.constraint_max_y = 768
         
-        self.acc_fract_x = ((0.9 * float(pygame.display.Info().current_w)) / 1024.0)
-        self.acc_fract_y = ((0.9 * float(pygame.display.Info().current_h)) / 768.0)
+        self.acc_fract_x = ((0.6 * float(pygame.display.Info().current_w)) / 1024.0)
+        self.acc_fract_y = ((0.6 * float(pygame.display.Info().current_h)) / 768.0)
+
+        self.idle_frames = []
+        self.moving_frames = []
+        self.current_frame = 0
 
     def is_moving(self):
         return self.moving
@@ -301,3 +305,89 @@ class OmnidirectionalActor(BaseActor):
         self.rect.center = (self.position[0], self.position[1])
 
         self.then = now
+
+    def add_idle_frame(self, frame):
+        self.idle_frames.append(frame.copy())
+
+    def change_idle_frame(self, frame_index, frame):
+        if frame_index < 0 or frame_index >= len(self.idle_frames):
+            pass
+        else:
+            self.idle_frames[frame_index] = frame.copy()
+
+    def remove_idle_frame(self, frame_index):
+        if frame_index < 1 or frame_index >= len(self.idle_frames):
+            # The first frame (frame 0) cannot be removed.
+            pass
+        else:
+            self.idle_frames.pop(im_point)
+            if self.current_frame >= len(self.idle_frames):
+                self.current_frame = len(self.idle_frames) - 1
+
+    def add_moving_frame(self, frame):
+        self.moving_frames.append(frame.copy())
+
+    def change_moving_frame(self, frame_index, frame):
+        if frame_index < 0 or frame_index >= len(self.moving_frames):
+            pass
+        else:
+            self.moving_frames[frame_index] = frame.copy()
+
+    def remove_moving_frame(self, frame_index):
+        if frame_index < 1 or frame_index >= len(self.moving_frames):
+            # The first frame (frame 0) cannot be removed.
+            pass
+        else:
+            self.moving_frames.pop(im_point)
+            if self.current_frame >= len(self.moving_frames):
+                self.current_frame = len(self.moving_frames) - 1
+
+    def draw(self, canvas):
+        if self.image is not None:
+            if not self.animated:
+                canvas.blit(self.image, self.rect)
+            else:
+                frame = None
+                anim_now = pygame.time.get_ticks()
+                delta_t = anim_now - self.anim_then
+                if not self.stopped and delta_t >= self.time_per_frame:
+                    self.current_frame = (self.current_frame + (delta_t // self.time_per_frame)) % 2
+                    self.anim_then = anim_now
+                if not self.moving:
+                    if self.angle >= -(math_utils.PI / 4.0) and self.angle < math_utils.PI / 4.0:
+                        # Between -45 and 45 degrees.
+                        frame = self.idle_frames[0]
+                    elif self.angle >= math_utils.PI / 4.0 and self.angle < 3.0 * (math_utils.PI / 4.0):
+                        # Between 45 and 135 degrees.
+                        frame = self.idle_frames[1]
+                    elif self.angle >= 3.0 * (math_utils.PI / 4.0) and self.angle <= math_utils.PI:
+                        # Between 135 and 180 degrees.
+                        frame = self.idle_frames[2]
+                    elif self.angle >= -3.0 * (math_utils.PI / 4.0) and self.angle < -(math_utils.PI / 4.0):
+                        # Between -135 and -45 degrees.
+                        frame = self.idle_frames[3]
+                    else:
+                        # Between -180 and -135 degrees.
+                        frame = self.idle_frames[2]
+                else:
+                    if self.angle >= -(math_utils.PI / 4.0) and self.angle < math_utils.PI / 4.0:
+                        # Between -45 and 45 degrees.
+                        base_frame = 0
+                    elif self.angle >= math_utils.PI / 4.0 and self.angle < 3.0 * (math_utils.PI / 4.0):
+                        # Between 45 and 135 degrees.
+                        base_frame = 2
+                    elif self.angle >= 3.0 * (math_utils.PI / 4.0) and self.angle <= math_utils.PI:
+                        # Between 135 and 180 degrees.
+                        base_frame = 4
+                    elif self.angle >= -3.0 * (math_utils.PI / 4.0) and self.angle < -(math_utils.PI / 4.0):
+                        # Between -135 and -45 degrees.
+                        base_frame = 6
+                    else:
+                        # Between -180 and -135 degrees.
+                        base_frame = 4
+                    frame = self.moving_frames[self.current_frame + base_frame]
+                frame_rect = frame.get_rect()
+                frame_rect.center = (self.position[0], self.position[1])
+                canvas.blit(frame, frame_rect)
+        else:
+            pygame.draw.rect(canvas, self.color, self.rect)
