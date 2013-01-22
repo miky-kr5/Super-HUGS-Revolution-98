@@ -32,10 +32,13 @@ class InGameState(BaseState):
        self.user_click = False
        self.cancel = False
 
-       self.time_left = 190
+       self.time_left = 160
        self.then = pygame.time.get_ticks()
        self.wave = 0
        self.done = False
+       self.max_npc = 15
+       self.create_huggable = False
+       self.change_angle = False
 
        self.bckg_x = 0
        self.bckg_y = 0
@@ -48,6 +51,11 @@ class InGameState(BaseState):
        self.player.set_fps(5)
        self.player.set_angle(math_utils.PI / 2.0)
        self.player.set_velocity([0, 0])
+
+       self.spawners = set()
+       for i in range(8):
+          spawner = actor.BaseActor(40 + i + 1, None, "Spawner " + str(i))
+          self.spawners.add(spawner)
 
        # Add idle frames to the player:
        play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_idle_side.png')
@@ -78,8 +86,8 @@ class InGameState(BaseState):
        self.player.add_moving_frame(play_img)
 
        # Create a surface for the background.
-       bg_w = int(float(pygame.display.Info().current_w * 1280) / 1024.0)
-       bg_h = int(float(pygame.display.Info().current_h * 1024) / 768.0)
+       bg_w = int(float(pygame.display.Info().current_w * 1315) / 1024.0)
+       bg_h = int(float(pygame.display.Info().current_h * 1280) / 768.0)
        self.background = pygame.Surface((bg_w, bg_h))
        self.game_area = pygame.Surface((bg_w, bg_h))
 
@@ -90,6 +98,13 @@ class InGameState(BaseState):
                            int((155.0 * float(pygame.display.Info().current_h)) / 768.0),
                            bg_h - int((155.0 * float(pygame.display.Info().current_h)) / 768.0)]
 
+       # Place the spawners in position.
+       positions = [(137, 181), (660, 181), (1190, 181), (1190, 662), (1190, 1155), (660, 1155), (137, 1155), (137, 662)]
+       i = 0
+       for spawner in self.spawners:
+          spawner.set_position([(positions[i][0] * bg_w) / 1315, (positions[i][1] * bg_h) / 1280])
+          i += 1
+       
        # Create the floor.
        floor = background.TiledBackground(bg_w, bg_h, 'gfx/piso.png')
 
@@ -99,7 +114,7 @@ class InGameState(BaseState):
        bg_y = self.background.get_height() - int((80.0 * float(pygame.display.Info().current_h)) / 768.0)
 
        # Create the left walls.
-       bg_h = int(float(pygame.display.Info().current_h * 1024) / 768.0)
+       bg_h = int(float(pygame.display.Info().current_h * 1280) / 768.0)
        walls_left = background.TiledBackground(-1, bg_h, 'gfx/Pared2.png')
        _y = int((80.0 * float(pygame.display.Info().current_h)) / 768.0)
        walls_left.set_position((0, _y))
@@ -190,7 +205,7 @@ class InGameState(BaseState):
        # Append it to the explosions set.
        self.explosions.add(explosion)
 
-    def create_huggable(self, position):
+    def create_new_huggable(self, position):
        play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_idle_front.png')
        huggable = actor.OmnidirectionalActor(0, play_img, "Random Huggable", True)
        huggable.set_fps(5)
@@ -198,6 +213,7 @@ class InGameState(BaseState):
        huggable.set_velocity([0, 0])
        huggable.set_position(position)
        huggable.set_constraints(self.constraints)
+       huggable.set_rotate_on_constraint(True)
        huggable.move()
 
        gender = random.choice([0, 1])
@@ -326,13 +342,22 @@ class InGameState(BaseState):
           if self.user_click:
              (self.cursor_x, self.cursor_y) = pygame.mouse.get_pos()
 
+          if event.type == pygame.USEREVENT + 1:
+             self.create_huggable = True
+
+          if event.type == pygame.USEREVENT + 2:
+             self.change_angle = True
+
     def update(self):
        if self.next_transition != VALID_STATES['QUIT']:
           if self.next_transition != VALID_STATES['STAY']:
              self.next_transition = VALID_STATES['STAY']
              self.player.reset_then()
              self.then = pygame.time.get_ticks()
-             self.create_explosion(self.player.get_position())
+             # Start the huggable creation timer.
+             pygame.time.set_timer(pygame.USEREVENT + 1, 1000)
+             # Start the huggable angle change event.
+             pygame.time.set_timer(pygame.USEREVENT + 2, 2000)
 
           if self.cancel and self.time_left > 0:
              # If the player pressed escape, force a timeout.
@@ -363,10 +388,41 @@ class InGameState(BaseState):
              self.player.update()
              self.recenter_view()
 
+             # Create new huggables.
+             if self.create_huggable:
+                for spawner in self.spawners:
+                   if len(self.npcs) >= self.max_npc:
+                      # If we reached the maximum number of npcs, cancel the timer and ignore the rest of the spawners.
+                      pygame.time.set_timer(pygame.USEREVENT + 1, 0)
+                      break
+                   else:
+                      chance = random.randrange(100)
+                      if chance < 20:
+                         self.create_new_huggable(spawner.get_position())
+                         self.create_explosion(spawner.get_position())
+                self.create_huggable = False
+
+             if self.change_angle:
+                for npc in self.npcs:
+                   npc.set_angle(math_utils.ang_2_radians(float(random.randrange(-180, 180, 1))))
+                self.change_angle = False
+
              for npc in self.npcs:
                 npc.update()
 
-             # TODO: Detect collisions here.
+             # TODO: Detect collisions with player here.
+
+             # Remove invisible npcs.
+             removal = set()
+             for npc in self.npcs:
+                if not npc.is_visible():
+                   removal.add(npc)
+
+             if len(removal) > 0 and len(self.npcs) >= self.max_npc:
+                # If npcs dissapeared this cycle restart the timer.
+                pygame.time.set_timer(pygame.USEREVENT + 1, 1000)
+
+             self.npcs.difference_update(removal)
 
           elif self.time_left < -3:
              # Reset everything.
@@ -394,6 +450,10 @@ class InGameState(BaseState):
              else:
                 self.next_transition = VALID_STATES['MENU']
 
+             # Stop the huggable creation timer.
+             pygame.time.set_timer(pygame.USEREVENT + 1, 0)
+             pygame.time.set_timer(pygame.USEREVENT + 2, 0)
+
              self.cancel = False
 
        # Remove finished explosions
@@ -402,13 +462,6 @@ class InGameState(BaseState):
           if explosion.get_current_frame() == 6:
              removal.add(explosion)
        self.explosions.difference_update(removal)
-
-       # Remove invisible npcs.
-       removal = set()
-       for npc in self.npcs:
-          if not npc.is_visible():
-             removal.add(npc)
-       self.npcs.difference_update(removal)
 
        self.score_text = self.font.render("Puntos:   " + str(player.PLAYERS[1].get_score()), True, (0, 0, 0))
        if self.time_left > 30:
@@ -425,21 +478,31 @@ class InGameState(BaseState):
     def render(self, canvas):
        #canvas.fill(self.background_color)
        self.game_area.blit(self.background, (0, 0))
-       
+
+       for spawner in self.spawners:
+          spawner.draw(self.game_area)
+
        # Blit everything to the bacground.
        # Sort npcs by Y coordinate and draw.
        # The idea is to draw npcs near the bottom edge of the screen last.
-       npc_list = list(self.npcs)
-       if player.PLAYERS[1].is_alive():
-          npc_list.append(self.player)
-       sorted(npc_list, key = lambda npc: npc.get_position()[1])
-       for npc in npc_list:
+       #npc_list = list(self.npcs)
+       #if player.PLAYERS[1].is_alive():
+       #   npc_list.append(self.player)
+       #sorted(npc_list, key = lambda npc: npc.get_position()[1])
+       #for npc in npc_list:
+       #   npc.draw(self.game_area)
+       for npc in self.npcs:
           npc.draw(self.game_area)
 
+       if player.PLAYERS[1].is_alive():
+          self.player.draw(self.game_area)
+
        # Same idea here.
-       expl_list = list(self.explosions)
-       sorted(expl_list, key = lambda explosion: explosion.get_position()[1])
-       for explosion in expl_list:
+       #expl_list = list(self.explosions)
+       #sorted(expl_list, key = lambda explosion: explosion.get_position()[1])
+       #for explosion in expl_list:
+       #   explosion.draw(self.game_area)
+       for explosion in self.explosions:
           explosion.draw(self.game_area)
 
        self.text_box.fill((128, 128, 128))

@@ -176,6 +176,9 @@ class BaseActor(pygame.sprite.Sprite):
     def test_collision_with_point(self, point):
         return self.rect.collidepoint(point[0], point[1])
 
+    def test_collision_with_actor(self, actor):
+        return self.rect.colliderect(actor.rect)
+
     def draw(self, canvas):
         if self.image is not None:
             if not self.animated:
@@ -249,6 +252,7 @@ class OmnidirectionalActor(BaseActor):
         self.then = pygame.time.get_ticks()
         self.frame_rate = frame_rate
         self.moving = False
+        self.rotate_on_constraint = False
 
         self.friction = 0.90
 
@@ -257,8 +261,8 @@ class OmnidirectionalActor(BaseActor):
         self.constraint_max_x = 1024
         self.constraint_max_y = 768
         
-        self.acc_fract_x = ((0.6 * float(pygame.display.Info().current_w)) / 1024.0)
-        self.acc_fract_y = ((0.6 * float(pygame.display.Info().current_h)) / 768.0)
+        self.acc_fract_x = ((0.4 * float(pygame.display.Info().current_w)) / 1024.0)
+        self.acc_fract_y = ((0.4 * float(pygame.display.Info().current_h)) / 768.0)
 
         self.idle_frames = []
         self.moving_frames = []
@@ -286,6 +290,9 @@ class OmnidirectionalActor(BaseActor):
         self.constraint_max_x = constraints[1]
         self.constraint_max_y = constraints[3]
 
+    def set_rotate_on_constraint(self, rotate):
+        self.rotate_on_constraint = rotate
+
     def reset_then(self):
         self.then = pygame.time.get_ticks()
 
@@ -306,12 +313,36 @@ class OmnidirectionalActor(BaseActor):
 
         if self.position[0] < self.constraint_min_x:
             self.position[0] = self.constraint_min_x
+            if self.rotate_on_constraint:
+                if self.angle > 0.0:
+                    self.angle -= math_utils.PI
+                else:
+                    self.angle += math_utils.PI
+                self.velocity = [0, 0]
         if self.position[0] > self.constraint_max_x:
             self.position[0] = self.constraint_max_x
+            if self.rotate_on_constraint:
+                if self.angle > 0.0:
+                    self.angle -= math_utils.PI
+                else:
+                    self.angle += math_utils.PI
+                self.velocity = [0, 0]
         if self.position[1] < self.constraint_min_y:
             self.position[1] = self.constraint_min_y
+            if self.rotate_on_constraint:
+                if self.angle > 0.0:
+                    self.angle -= math_utils.PI
+                else:
+                    self.angle += math_utils.PI
+                self.velocity = [0, 0]
         if self.position[1] > self.constraint_max_y:
             self.position[1] = self.constraint_max_y
+            if self.rotate_on_constraint:
+                if self.angle > 0.0:
+                    self.angle -= math_utils.PI
+                else:
+                    self.angle += math_utils.PI
+                self.velocity = [0, 0]
             
         self.velocity[0] *= self.friction
         self.velocity[1] *= self.friction
