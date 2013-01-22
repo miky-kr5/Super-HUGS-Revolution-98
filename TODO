@@ -1,7 +1,9 @@
 Stuff left:
     1) Add sound support to the BaseState subclasses.
-    2) Implement the 8 directional actor subclass.
-    3) Implement the NPC's based on the 8 directional actor subclass.
-    4) Implement the NPC spawners.
-    5) Center the letters in ScoreState and the story labels in MenuState.
-    6) Comment everything.
+    2) Implement the NPC's based on the 8 directional actor subclass.
+    3) Implement the NPC spawners.
+    4) Calculate socres and wave increases.
+    5) Implement the defeat condition with the enemies.
+    6) Center the letters in ScoreState and the story labels in MenuState.
+    7) Fix the issue of the right wall not properly aligned on Android.
+    8) Make movement relative to player position.
