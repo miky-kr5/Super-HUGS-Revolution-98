@@ -26,6 +26,7 @@ class InGameState(BaseState):
        self.cursor_x = 0
        self.cursor_y = 0
        self.user_click = False
+       self.cancel = False
 
        self.time_left = 190
        self.then = pygame.time.get_ticks()
@@ -165,8 +166,7 @@ class InGameState(BaseState):
 
           if event.type == pygame.KEYDOWN:
              if event.key == pygame.K_ESCAPE:
-                self.next_transition = VALID_STATES['QUIT']
-             self.user_click = True
+                self.cancel = True
           if event.type == pygame.QUIT:
              self.next_transition = VALID_STATES['QUIT']
 
@@ -188,8 +188,6 @@ class InGameState(BaseState):
              self.player.reset_then()
              self.then = pygame.time.get_ticks()
 
-          #self.done = not player.PLAYERS[1].is_alive()
-
           now = pygame.time.get_ticks()
           delta_t = now - self.then
           if delta_t >= 1000:
@@ -198,6 +196,12 @@ class InGameState(BaseState):
              if self.time_left <= 0:
                 player.PLAYERS[1].kill()
                 self.done = True
+
+          if self.cancel and self.time_left > 0:
+             # If the player pressed escape, force a timeout.
+             self.time_left = 0
+             player.PLAYERS[1].kill()
+             self.done = True
 
           if not self.done:
              if self.cursor_x != self.screen_center[0] or self.cursor_y != self.screen_center[1]:
@@ -211,14 +215,6 @@ class InGameState(BaseState):
                 self.player.set_angle(math_utils.angle_vectors_2D(self.vec_1, vec_2))
 
              self.player.update()
-
-             self.score_text = self.font.render("Puntos:   " + str(player.PLAYERS[1].get_score()), True, (0, 0, 0))
-             if self.time_left > 30:
-                self.time_text = self.font.render("Tiempo:   " + str(self.time_left), True, (0, 0, 0))
-             else:
-                self.time_text = self.font.render("Tiempo:   " + str(max(self.time_left, 0)), True, (255, 0, 0))
-             self.wave_text = self.font.render("Oleada:   " + str(self.wave), True, (0, 0, 0))
-
              self.recenter_view()
 
           elif self.time_left < -3:
@@ -239,7 +235,20 @@ class InGameState(BaseState):
              # TODO: Destroy all NPC's.
 
              player.PLAYERS[1].revive()
-             self.next_transition = VALID_STATES['SCORE']
+             if not self.cancel:
+                # Register scores only if the game ended cleanly.
+                self.next_transition = VALID_STATES['SCORE']
+             else:
+                self.next_transition = VALID_STATES['MENU']
+
+             self.cancel = False
+
+       self.score_text = self.font.render("Puntos:   " + str(player.PLAYERS[1].get_score()), True, (0, 0, 0))
+       if self.time_left > 30:
+          self.time_text = self.font.render("Tiempo:   " + str(self.time_left), True, (0, 0, 0))
+       else:
+          self.time_text = self.font.render("Tiempo:   " + str(max(self.time_left, 0)), True, (255, 0, 0))
+       self.wave_text = self.font.render("Oleada:   " + str(self.wave), True, (0, 0, 0))
 
        self.cursor_x = self.screen_center[0]
        self.cursor_y = self.screen_center[1]
