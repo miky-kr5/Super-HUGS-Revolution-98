@@ -83,7 +83,7 @@ class BaseActor(pygame.sprite.Sprite):
         self.color = (red, green, blue)
 
     def get_position(self):
-        return self.position
+        return list(self.position)
 
     def set_position(self, new_pos):
         self.position = list(new_pos)
@@ -243,6 +243,9 @@ class OmnidirectionalActor(BaseActor):
         self.constraint_min_y = 0
         self.constraint_max_x = 1024
         self.constraint_max_y = 768
+        
+        self.acc_fract_x = ((0.9 * float(pygame.display.Info().current_w)) / 1024.0)
+        self.acc_fract_y = ((0.9 * float(pygame.display.Info().current_h)) / 768.0)
 
     def is_moving(self):
         return self.moving
@@ -277,8 +280,8 @@ class OmnidirectionalActor(BaseActor):
         if self.moving:
             direction = math_utils.angle_to_vector(self.angle)
 
-            self.velocity[0] += direction[0] * 0.9
-            self.velocity[1] += direction[1] * 0.9
+            self.velocity[0] += direction[0] * self.acc_fract_x
+            self.velocity[1] += direction[1] * self.acc_fract_y
 
         self.position[0] += (self.velocity[0] * delta_t) * (self.frame_rate / 1000)
         self.position[1] += (self.velocity[1] * delta_t) * (self.frame_rate / 1000)

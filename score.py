@@ -122,6 +122,7 @@ class ScoreState(BaseState):
              score = (str(self.player_init[0] + self.player_init[1] + self.player_init[2]), player.PLAYERS[1].get_score())
              database.cursor.execute('UPDATE score SET player_name = ?, score = ? WHERE _id IN (SELECT _id FROM score WHERE score IN (SELECT MIN(score) FROM score))', score)
              database.scores.commit()
+             player.PLAYERS[1].reset_score()
              # Don't forget to reset the initials list.
              self.player_init = []
              self.letter_index = 0
