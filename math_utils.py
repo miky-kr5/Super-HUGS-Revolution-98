@@ -22,7 +22,7 @@ def angle_vectors_2D(vec1, vec2):
     return math.atan2(vec2[1], vec2[0]) - math.atan2(vec1[1], vec1[0])
 
 def ang_2_radians(ang):
-    return ang * (180 / PI)
+    return (ang * PI) / 180.0
 
 def radians_2_ang(rad):
-    return rad * (PI / 180)
+    return (rad * 180.0) / PI

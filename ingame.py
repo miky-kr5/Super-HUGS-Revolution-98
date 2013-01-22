@@ -3,6 +3,7 @@
 ###########################################
 import math
 import copy
+import random
 
 import pygame
 try:
@@ -20,6 +21,8 @@ from state import BaseState, VALID_STATES
 class InGameState(BaseState):
     def __init__(self):
        BaseState.__init__(self)
+
+       random.seed(None)
 
        self.background_color = (125, 158, 192)
 
@@ -186,6 +189,119 @@ class InGameState(BaseState):
 
        # Append it to the explosions set.
        self.explosions.add(explosion)
+
+    def create_huggable(self, position):
+       play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_idle_front.png')
+       huggable = actor.OmnidirectionalActor(0, play_img, "Random Huggable", True)
+       huggable.set_fps(5)
+       huggable.set_angle(math_utils.ang_2_radians(float(random.randrange(-180, 180, 1))))
+       huggable.set_velocity([0, 0])
+       huggable.set_position(position)
+       huggable.set_constraints(self.constraints)
+       huggable.move()
+
+       gender = random.choice([0, 1])
+       if gender == 0:
+          # Create a male huggable.
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Idle_side.png')
+          huggable.add_idle_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Idle_front.png')
+          huggable.add_idle_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Idle_side_flipped.png')
+          huggable.add_idle_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Idle_back.png')
+          huggable.add_idle_frame(image)
+
+          # Add moving frames.
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Walking_side_1.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Walking_side_2.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Walking_front_1.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Walking_front_2.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Walking_side_1_flipped.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Walking_side_2_flipped.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Walking_back_1.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Walking_back_2.png')
+          huggable.add_moving_frame(image)
+
+          huggable.toggle_scared()
+          # Add scared frames.
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Walking_side_1_scared.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Walking_side_2_scared.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Walking_front_1_scared.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Walking_front_2_scared.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Walking_side_1_scared_flipped.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Walking_side_2_scared_flipped.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Walking_back_1.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Walking_back_2.png')
+          huggable.add_moving_frame(image)
+
+          huggable.toggle_scared()
+
+       else:
+          # Create a female huggable.
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Idle_side.png')
+          huggable.add_idle_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Idle_front.png')
+          huggable.add_idle_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Idle_side_flipped.png')
+          huggable.add_idle_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Idle_back.png')
+          huggable.add_idle_frame(image)
+
+          # Add moving frames.
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Walking_side_1.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Walking_side_2.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Walking_front_1.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Walking_front_2.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Walking_side_1_flipped.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Walking_side_2_flipped.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Walking_back_1.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Walking_back_2.png')
+          huggable.add_moving_frame(image)
+          
+          huggable.toggle_scared()
+          # Add scared frames.
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Walking_side_1_scared.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Walking_side_2_scared.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Walking_front_1_scared.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Walking_front_2_scared.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Walking_side_1_scared_flipped.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Walking_side_2_scared_flipped.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Walking_back_1.png')
+          huggable.add_moving_frame(image)
+          image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/SheHuggable/Walking_back_2.png')
+          huggable.add_moving_frame(image)
+          
+          huggable.toggle_scared()
+
+       self.npcs.add(huggable)
           
     def input(self):
        for event in pygame.event.get():
@@ -247,6 +363,11 @@ class InGameState(BaseState):
              self.player.update()
              self.recenter_view()
 
+             for npc in self.npcs:
+                npc.update()
+
+             # TODO: Detect collisions here.
+
           elif self.time_left < -3:
              # Reset everything.
              self.time_left = 190
@@ -275,12 +396,14 @@ class InGameState(BaseState):
 
              self.cancel = False
 
+       # Remove finished explosions
        removal = set()
        for explosion in self.explosions:
           if explosion.get_current_frame() == 6:
              removal.add(explosion)
        self.explosions.difference_update(removal)
 
+       # Remove invisible npcs.
        removal = set()
        for npc in self.npcs:
           if not npc.is_visible():
@@ -304,13 +427,18 @@ class InGameState(BaseState):
        self.game_area.blit(self.background, (0, 0))
        
        # Blit everything to the bacground.
+       # Sort npcs by Y coordinate and draw.
+       # The idea is to draw npcs near the bottom edge of the screen last.
+       npc_list = list(self.npcs)
        if player.PLAYERS[1].is_alive():
-          self.player.draw(self.game_area)
+          npc_list.append(self.player)
+       sorted(npc_list, key = lambda npc: npc.get_position()[1])
+       for npc in npc_list:
+          npc.draw(self.game_area)
 
-       # Sort explosions by Y coordinate and draw.
-       # The idea is to draw explosion near the bottom edge of the screen last.
+       # Same idea here.
        expl_list = list(self.explosions)
-       sorted(expl_list, key = lambda explosion: explosion.get_position()[1], reverse = True)
+       sorted(expl_list, key = lambda explosion: explosion.get_position()[1])
        for explosion in expl_list:
           explosion.draw(self.game_area)
 

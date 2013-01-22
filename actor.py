@@ -262,6 +262,7 @@ class OmnidirectionalActor(BaseActor):
 
         self.idle_frames = []
         self.moving_frames = []
+        self.scared_frames = []
         self.current_frame = 0
 
     def is_moving(self):
@@ -354,6 +355,11 @@ class OmnidirectionalActor(BaseActor):
             self.moving_frames.pop(im_point)
             if self.current_frame >= len(self.moving_frames):
                 self.current_frame = len(self.moving_frames) - 1
+
+    def toggle_scared(self):
+        aux = self.moving_frames
+        self.moving_frames = self.scared_frames
+        self.scared_frames = aux
 
     def draw(self, canvas):
         if self.image is not None:
