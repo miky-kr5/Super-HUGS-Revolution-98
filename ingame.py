@@ -123,11 +123,7 @@ class InGameState(BaseState):
        self.vec_1 = (float(pygame.display.Info().current_w) - float(self.screen_center[0]), 0.0)
        self.vec_1 = math_utils.normalize_vector_2D(self.vec_1)
 
-       font_size = 22
-       screen_prop = (float(font_size) / 768.0)
-       screen_fract = (float(pygame.display.Info().current_h) * screen_prop) / 768.0
-       scale_factor = screen_fract / screen_prop
-       self.font = pygame.font.Font('font/ProfaisalEliteRiqa/Profaisal-EliteRiqaV1.0.ttf', int(font_size * scale_factor))
+       self.font = pygame.font.Font('font/ProfaisalEliteRiqa/Profaisal-EliteRiqaV1.0.ttf', 22)
 
        self.score_text = self.font.render("Puntos:   " + str(1000), True, (0, 0, 0))
        self.time_text = self.font.render("Tiempo:   " + str(190), True, (0, 0, 0))
