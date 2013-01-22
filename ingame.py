@@ -2,6 +2,7 @@
 # Created on 1-7-2013. Miguel Angel Astor #
 ###########################################
 import math
+import copy
 
 import pygame
 try:
@@ -35,6 +36,9 @@ class InGameState(BaseState):
 
        self.bckg_x = 0
        self.bckg_y = 0
+
+       self.explosions = set()
+       self.npcs = set()
 
        play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_idle_front.png')
        self.player = actor.OmnidirectionalActor(0, play_img, "Player", True)
@@ -158,6 +162,31 @@ class InGameState(BaseState):
        if self.bckg_x + self.background.get_width() < pygame.display.Info().current_w:
           self.bckg_x += pygame.display.Info().current_w - (self.bckg_x + self.background.get_width())
 
+    def create_explosion(self, position):
+       # Create a explosion object.
+       expl_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Explosion1.png')
+       explosion = actor.BaseActor(1, expl_img, "Eplosion", True, True, False)
+       explosion.set_fps(6)
+       explosion.set_position(position)
+       explosion.set_looping(False)
+
+       # Add all it's frames.
+       expl_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Explosion2.png')
+       explosion.add_frame(expl_img)
+       expl_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Explosion3.png')
+       explosion.add_frame(expl_img)
+       expl_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Explosion4.png')
+       explosion.add_frame(expl_img)
+       expl_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Explosion5.png')
+       explosion.add_frame(expl_img)
+       expl_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Explosion6.png')
+       explosion.add_frame(expl_img)
+       expl_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Explosion6.png')
+       explosion.add_frame(expl_img)
+
+       # Append it to the explosions set.
+       self.explosions.add(explosion)
+          
     def input(self):
        for event in pygame.event.get():
           if android:
@@ -187,21 +216,22 @@ class InGameState(BaseState):
              self.next_transition = VALID_STATES['STAY']
              self.player.reset_then()
              self.then = pygame.time.get_ticks()
+             self.create_explosion(self.player.get_position())
+
+          if self.cancel and self.time_left > 0:
+             # If the player pressed escape, force a timeout.
+             self.time_left = 0
 
           now = pygame.time.get_ticks()
           delta_t = now - self.then
           if delta_t >= 1000:
              self.time_left -= delta_t // 1000
              self.then = now
-             if self.time_left <= 0:
-                player.PLAYERS[1].kill()
-                self.done = True
 
-          if self.cancel and self.time_left > 0:
-             # If the player pressed escape, force a timeout.
-             self.time_left = 0
+          if self.time_left <= 0 and player.PLAYERS[1].is_alive():
              player.PLAYERS[1].kill()
              self.done = True
+             self.create_explosion(self.player.get_position())
 
           if not self.done:
              if self.cursor_x != self.screen_center[0] or self.cursor_y != self.screen_center[1]:
@@ -233,6 +263,8 @@ class InGameState(BaseState):
              self.player.set_position([bg_w // 2, bg_h // 2])
 
              # TODO: Destroy all NPC's.
+             self.explosions.clear()
+             self.npcs.clear()
 
              player.PLAYERS[1].revive()
              if not self.cancel:
@@ -242,6 +274,18 @@ class InGameState(BaseState):
                 self.next_transition = VALID_STATES['MENU']
 
              self.cancel = False
+
+       removal = set()
+       for explosion in self.explosions:
+          if explosion.get_current_frame() == 6:
+             removal.add(explosion)
+       self.explosions.difference_update(removal)
+
+       removal = set()
+       for npc in self.npcs:
+          if not npc.is_visible():
+             removal.add(npc)
+       self.npcs.difference_update(removal)
 
        self.score_text = self.font.render("Puntos:   " + str(player.PLAYERS[1].get_score()), True, (0, 0, 0))
        if self.time_left > 30:
@@ -262,6 +306,13 @@ class InGameState(BaseState):
        # Blit everything to the bacground.
        if player.PLAYERS[1].is_alive():
           self.player.draw(self.game_area)
+
+       # Sort explosions by Y coordinate and draw.
+       # The idea is to draw explosion near the bottom edge of the screen last.
+       expl_list = list(self.explosions)
+       sorted(expl_list, key = lambda explosion: explosion.get_position()[1], reverse = True)
+       for explosion in expl_list:
+          explosion.draw(self.game_area)
 
        self.text_box.fill((128, 128, 128))
        self.text_box.blit(self.score_text, (5, 5))

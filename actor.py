@@ -26,6 +26,7 @@ class BaseActor(pygame.sprite.Sprite):
         self.current_frame = 0
         self.anim_then = pygame.time.get_ticks()
         self.stopped = False
+        self.loop = True
 
         self.angle = 0.0
         self.position = [0, 0]
@@ -113,12 +114,21 @@ class BaseActor(pygame.sprite.Sprite):
     def set_friction(self, new_friction):
         self.friction = new_friction
 
+    def is_looping(self):
+        return self.loop
+
+    def set_looping(self, loop):
+        self.loop = loop
+
     def get_fps(self):
         return self.fps
     
     def set_fps(self, fps):
         self.fps = fps
         self.time_per_frame = int(1000.0 / float(self.fps))
+
+    def get_current_frame(self):
+        return self.current_frame
 
     def resume_animation(self):
         self.stopped = False
@@ -174,7 +184,10 @@ class BaseActor(pygame.sprite.Sprite):
                 anim_now = pygame.time.get_ticks()
                 delta_t = anim_now - self.anim_then
                 if not self.stopped and delta_t >= self.time_per_frame:
-                    self.current_frame = (self.current_frame + (delta_t // self.time_per_frame)) % len(self.frames)
+                    if self.current_frame == len(self.frames) and not self.loop:
+                        pass
+                    else:
+                        self.current_frame = (self.current_frame + (delta_t // self.time_per_frame)) % len(self.frames)
                     self.anim_then = anim_now
                 frame = self.frames[self.current_frame]
                 frame_rect = frame.get_rect()
