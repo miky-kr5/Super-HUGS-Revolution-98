@@ -1,10 +1,4 @@
 Stuff left:
-    1) Add sound support to the BaseState subclasses.
-    2) Implement the NPC spawners.
-    3) Calculate socres and wave increases.
-    4) Implement the defeat condition with the enemies.
-    5) Center the letters in ScoreState and the story labels in MenuState.
-    6) Fix the issue of the right wall not properly aligned on Android.
-    7) Make movement relative to player position.
-    8) Make npcs change direction randomly.
-    9) Make npcs run away from player
+    1) Add sound and music.
+    2) Implement the defeat condition with the enemies.
+    3) Center the letters in ScoreState and the story labels in MenuState.
