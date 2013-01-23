@@ -16,6 +16,7 @@ import player
 import background
 import imloader
 import actor
+import database
 from state import BaseState, VALID_STATES
 
 class InGameState(BaseState):
@@ -435,6 +436,7 @@ class InGameState(BaseState):
                    npc.make_invisible()
                    self.create_explosion(npc.get_position())
                    player.PLAYERS[1].inc_score_by_one()
+                   self.time_left += 1
 
                 # If the npc exploded this turn, remove it.
                 if not npc.is_visible():
@@ -470,8 +472,10 @@ class InGameState(BaseState):
              self.npcs.clear()
 
              player.PLAYERS[1].revive()
-             if not self.cancel:
-                # Register scores only if the game ended cleanly.
+             
+             database.cursor.execute('SELECT * FROM score ORDER BY score ASC')
+             row = database.cursor.fetchone()
+             if player.PLAYERS[1].get_score() > row[2]:
                 self.next_transition = VALID_STATES['SCORE']
              else:
                 self.next_transition = VALID_STATES['MENU']
@@ -508,25 +512,25 @@ class InGameState(BaseState):
        # Blit everything to the bacground.
        # Sort npcs by Y coordinate and draw.
        # The idea is to draw npcs near the bottom edge of the screen last.
-       #npc_list = list(self.npcs)
-       #if player.PLAYERS[1].is_alive():
-       #   npc_list.append(self.player)
-       #sorted(npc_list, key = lambda npc: npc.get_position()[1])
-       #for npc in npc_list:
-       #   npc.draw(self.game_area)
-       for npc in self.npcs:
-          npc.draw(self.game_area)
-
+       npc_list = list(self.npcs)
        if player.PLAYERS[1].is_alive():
-          self.player.draw(self.game_area)
+          npc_list.append(self.player)
+       npc_list = sorted(npc_list, key = lambda npc: npc.get_position()[1])
+       for npc in npc_list:
+          npc.draw(self.game_area)
+       #for npc in self.npcs:
+       #   npc.draw(self.game_area)
+
+       #if player.PLAYERS[1].is_alive():
+       #   self.player.draw(self.game_area)
 
        # Same idea here.
-       #expl_list = list(self.explosions)
-       #sorted(expl_list, key = lambda explosion: explosion.get_position()[1])
-       #for explosion in expl_list:
-       #   explosion.draw(self.game_area)
-       for explosion in self.explosions:
+       expl_list = list(self.explosions)
+       expl_list = sorted(expl_list, key = lambda explosion: explosion.get_position()[1])
+       for explosion in expl_list:
           explosion.draw(self.game_area)
+       #for explosion in self.explosions:
+       #   explosion.draw(self.game_area)
 
        self.text_box.fill((128, 128, 128))
        self.text_box.blit(self.score_text, (5, 5))

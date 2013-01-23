@@ -9,6 +9,7 @@ except ImportError:
    android = None
 
 import database
+import player
 from constants import DEBUG
 from imloader import cached_image_loader
 from actor import BaseActor
@@ -146,17 +147,22 @@ class MenuState(BaseState):
 
     def reload_scores(self):
        # Reload the scores from the database.
-       for row in database.cursor.execute('SELECT * FROM score ORDER BY _id'):
-          if row[0] == 1:
+       database.cursor.execute('SELECT * FROM score ORDER BY _id')
+       rows = database.cursor.fetchall()
+       rows = sorted(rows, key = lambda row: row[2], reverse = True)
+       i = 1
+       for row in rows:
+          if i == 1:
              self.score_1 = self.font.render("1) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
-          elif row[0] == 2:
+          elif i == 2:
              self.score_2 = self.font.render("2) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
-          elif row[0] == 3:
+          elif i == 3:
              self.score_3 = self.font.render("3) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
-          elif row[0] == 4:
+          elif i == 4:
              self.score_4 = self.font.render("4) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
           else:
              self.score_5 = self.font.render("5) " + row[1] + " . . . . . . . . . " + str(max(row[2], 0)), True, (0, 0, 0))
+          i += 1
 
     def input(self):
        for event in pygame.event.get():
@@ -181,6 +187,8 @@ class MenuState(BaseState):
     def update(self):
        if android is None:
           pygame.mouse.set_visible(True)
+
+       player.PLAYERS[1].reset_score()
 
        if self.next_transition != VALID_STATES['QUIT']:
           if self.next_transition != VALID_STATES['STAY']:

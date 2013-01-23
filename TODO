@@ -2,3 +2,4 @@ Stuff left:
     1) Add sound and music.
     2) Implement the defeat condition with the enemies.
     3) Center the letters in ScoreState and the story labels in MenuState.
+    4) Add time to player after scoring.

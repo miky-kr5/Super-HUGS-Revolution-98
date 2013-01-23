@@ -119,10 +119,13 @@ class ScoreState(BaseState):
 
           if self.done_button.is_visible() and self.done_button.test_collision_with_point((self.cursor_x, self.cursor_y)):
              # If the user clicked on the done button, insert the score in the database and go to the main menu.
-             score = (str(self.player_init[0] + self.player_init[1] + self.player_init[2]), player.PLAYERS[1].get_score())
-             database.cursor.execute('UPDATE score SET player_name = ?, score = ? WHERE _id IN (SELECT _id FROM score WHERE score IN (SELECT MIN(score) FROM score))', score)
+             database.cursor.execute('SELECT * FROM score ORDER BY score ASC')
+             row = database.cursor.fetchone()
+             score = (str(self.player_init[0] + self.player_init[1] + self.player_init[2]),
+                      player.PLAYERS[1].get_score(),
+                      row[0])
+             database.cursor.execute('UPDATE score SET player_name = ?, score = ? WHERE _id = ?', score)
              database.scores.commit()
-             player.PLAYERS[1].reset_score()
              # Don't forget to reset the initials list.
              self.player_init = []
              self.letter_index = 0
