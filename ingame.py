@@ -40,12 +40,14 @@ class InGameState(BaseState):
        self.max_npc = 15
        self.create_huggable = False
        self.change_angle = False
+       self.create_enemy = False
 
        self.bckg_x = 0
        self.bckg_y = 0
 
        self.explosions = set()
        self.npcs = set()
+       self.enemies = set()
 
        play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_idle_front.png')
        self.player = actor.OmnidirectionalActor(0, play_img, "Player", True)
@@ -92,8 +94,10 @@ class InGameState(BaseState):
        self.background = pygame.Surface((bg_w, bg_h))
        self.game_area = pygame.Surface((bg_w, bg_h))
 
+       self.game_area_center = [bg_w // 2, bg_h // 2]
+
        # Center the player.
-       self.player.set_position([bg_w // 2, bg_h // 2])
+       self.player.set_position(self.game_area_center)
        self.constraints = [int((95.0 * float(pygame.display.Info().current_w)) / 1024.0),
                            bg_w - int((95.0 * float(pygame.display.Info().current_w)) / 1024.0),
                            int((155.0 * float(pygame.display.Info().current_h)) / 768.0),
@@ -213,7 +217,7 @@ class InGameState(BaseState):
        self.explosions.add(explosion)
 
     def create_new_huggable(self, position):
-       play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/Player/player_idle_front.png')
+       play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/HeHuggable/Idle_front.png')
        huggable = actor.OmnidirectionalActor(0, play_img, "Random Huggable", True)
        huggable.set_fps(5)
        huggable.set_angle(math_utils.ang_2_radians(float(random.randrange(-180, 180, 1))))
@@ -327,6 +331,53 @@ class InGameState(BaseState):
 
        self.npcs.add(huggable)
           
+    def create_new_enemy(self, position):
+       play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/ForeverAlone/Idle_front.png')
+       enemy = actor.OmnidirectionalActor(0, play_img, "Random Enemy", True)
+       enemy.set_fps(5)
+       enemy.set_velocity([0, 0])
+       enemy.set_acceleration_fraction(0.5)
+       enemy.set_position(position)
+       enemy.set_constraints(self.constraints)
+       enemy.set_rotate_on_constraint(True)
+       enemy.move()
+
+       # Create a male enemy.
+       image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/ForeverAlone/Idle_side.png')
+       enemy.add_idle_frame(image)
+       image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/ForeverAlone/Idle_front.png')
+       enemy.add_idle_frame(image)
+       image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/ForeverAlone/Idle_side_flipped.png')
+       enemy.add_idle_frame(image)
+       image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/ForeverAlone/Idle_back.png')
+       enemy.add_idle_frame(image)
+
+       # Add moving frames.
+       image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/ForeverAlone/Walking_side_1.png')
+       enemy.add_moving_frame(image)
+       image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/ForeverAlone/Walking_side_2.png')
+       enemy.add_moving_frame(image)
+       image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/ForeverAlone/Walking_front_1.png')
+       enemy.add_moving_frame(image)
+       image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/ForeverAlone/Walking_front_2.png')
+       enemy.add_moving_frame(image)
+       image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/ForeverAlone/Walking_side_1_flipped.png')
+       enemy.add_moving_frame(image)
+       image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/ForeverAlone/Walking_side_2_flipped.png')
+       enemy.add_moving_frame(image)
+       image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/ForeverAlone/Walking_back_1.png')
+       enemy.add_moving_frame(image)
+       image = imloader.cached_image_loader.get_image_to_screen_percent('gfx/ForeverAlone/Walking_back_2.png')
+       enemy.add_moving_frame(image)
+
+       # Move in the direction of the player.
+       p_pos = self.player.get_position()
+       vec_2 = (float(p_pos[0] - position[0]), float(p_pos[1] - position[1]))
+       vec_2 = math_utils.normalize_vector_2D(vec_2)
+       enemy.set_angle(math_utils.angle_vectors_2D(self.vec_1, vec_2))
+
+       self.enemies.add(enemy)
+
     def input(self):
        for event in pygame.event.get():
           if android:
@@ -356,6 +407,9 @@ class InGameState(BaseState):
           if event.type == pygame.USEREVENT + 2:
              self.change_angle = True
 
+          if event.type == pygame.USEREVENT + 3:
+             self.create_enemy = True
+
     def update(self):
        if self.next_transition != VALID_STATES['QUIT']:
           if self.next_transition != VALID_STATES['STAY']:
@@ -366,6 +420,8 @@ class InGameState(BaseState):
              pygame.time.set_timer(pygame.USEREVENT + 1, 1000)
              # Start the huggable angle change event.
              pygame.time.set_timer(pygame.USEREVENT + 2, 2000)
+             # Start the enemy creation timer.
+             pygame.time.set_timer(pygame.USEREVENT + 3, 3000)
 
           if self.cancel and self.time_left > 0:
              # If the player pressed escape, force a timeout.
@@ -410,6 +466,22 @@ class InGameState(BaseState):
                    npc.set_angle(math_utils.ang_2_radians(float(random.randrange(-180, 180, 1))))
                 self.change_angle = False
 
+             if self.create_enemy:
+                for spawner in self.spawners:
+                   if len(self.enemies) >= self.max_npc:
+                      # If we reached the maximum number of npcs, cancel the timer and ignore the rest of the spawners.
+                      pygame.time.set_timer(pygame.USEREVENT + 3, 0)
+                      break
+                   else:
+                      # First check the distance between the player and the spawner to avoid enemies spawning on top of
+                      # the player.
+                      if math_utils.distance_2D(self.player.get_position(), spawner.get_position()) > 1.5 * float(self.scare_dist):
+                         chance = random.randrange(0, 50)
+                         if chance < self.wave:
+                            self.create_new_enemy(spawner.get_position())
+                            self.create_explosion(spawner.get_position())
+                self.create_enemy = False
+
              removal = set()
              for npc in self.npcs:
                 # Check if the npc must run away from the player.
@@ -438,6 +510,9 @@ class InGameState(BaseState):
                    player.PLAYERS[1].inc_score_by_one()
                    self.time_left += 1
 
+                   if player.PLAYERS[1].get_score() % 25 == 0:
+                      self.wave += 1
+
                 # If the npc exploded this turn, remove it.
                 if not npc.is_visible():
                    removal.add(npc)
@@ -447,10 +522,30 @@ class InGameState(BaseState):
                 pygame.time.set_timer(pygame.USEREVENT + 1, 1000)
 
              self.npcs.difference_update(removal)
-             
-             if player.PLAYERS[1].get_score() > 0 and player.PLAYERS[1].get_score() % 25 == 0:
-                self.wave += 1
-                player.PLAYERS[1].inc_score_by_one()
+
+             removal = set()
+
+             for enemy in self.enemies:
+                enemy.update()
+
+                if enemy.test_collision_with_actor(self.player):
+                   # If the player lost, force a timeout.
+                   self.time_left = 0
+                
+                if enemy.get_position()[0] <= self.constraints[0] or enemy.get_position()[0] >= self.constraints[1]:
+                   enemy.make_invisible()
+                   self.create_explosion(enemy.get_position())
+                   removal.add(enemy)
+                elif enemy.get_position()[1] <= self.constraints[2] or enemy.get_position()[1] >= self.constraints[3]:
+                   enemy.make_invisible()
+                   self.create_explosion(enemy.get_position())
+                   removal.add(enemy)
+
+             if len(removal) > 0 and len(self.enemies) >= self.max_npc:
+                # If npcs dissapeared this cycle restart the timer.
+                pygame.time.set_timer(pygame.USEREVENT + 1, 3000)
+
+             self.enemies.difference_update(removal)
 
           elif self.time_left < -3:
              # Reset everything.
@@ -463,9 +558,7 @@ class InGameState(BaseState):
              self.player.set_angle(90)
              self.player.set_velocity([0, 0])
              self.player.stop()
-             bg_w = int(float(pygame.display.Info().current_w * 1280) / 1024.0)
-             bg_h = int(float(pygame.display.Info().current_h * 1024) / 768.0)
-             self.player.set_position([bg_w // 2, bg_h // 2])
+             self.player.set_position(self.game_area_center)
 
              # TODO: Destroy all NPC's.
              self.explosions.clear()
@@ -483,6 +576,7 @@ class InGameState(BaseState):
              # Stop the huggable creation timer.
              pygame.time.set_timer(pygame.USEREVENT + 1, 0)
              pygame.time.set_timer(pygame.USEREVENT + 2, 0)
+             pygame.time.set_timer(pygame.USEREVENT + 3, 0)
 
              self.cancel = False
 
@@ -513,16 +607,13 @@ class InGameState(BaseState):
        # Sort npcs by Y coordinate and draw.
        # The idea is to draw npcs near the bottom edge of the screen last.
        npc_list = list(self.npcs)
+       enemy_list = list(self.enemies)
+       npc_list.extend(enemy_list)
        if player.PLAYERS[1].is_alive():
           npc_list.append(self.player)
        npc_list = sorted(npc_list, key = lambda npc: npc.get_position()[1])
        for npc in npc_list:
           npc.draw(self.game_area)
-       #for npc in self.npcs:
-       #   npc.draw(self.game_area)
-
-       #if player.PLAYERS[1].is_alive():
-       #   self.player.draw(self.game_area)
 
        # Same idea here.
        expl_list = list(self.explosions)
