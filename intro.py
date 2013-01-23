@@ -46,7 +46,7 @@ class IntroState(BaseState):
       self.submarine.set_fps(10)
       self.submarine.add_frame(image4)
 
-      self.particle_system = particle.ParticleSystem(0, "Bubbles", 'gfx/burbuja.png', 1000, 1000, 1, -130.0)
+      self.particle_system = particle.ParticleSystem(0, "Bubbles", 'gfx/burbuja.png', 1000, 1000, 3, -130.0)
       self.particle_system.set_friction(1.0)
       self.particle_system.set_gravity([0.0, -60.0])
       self.particle_system.set_max_velocity(5.0)
@@ -92,7 +92,7 @@ class IntroState(BaseState):
       self.sine_movement.update()
       sm_position = self.sine_movement.get_position()
       self.submarine.set_position([sm_position[0], 
-                                   self.screen_vertical_half + math.sin(0.05 * float(sm_position[0])) * 42.0])
+                                   self.screen_vertical_half + math.sin(0.05 * float(0.5 * sm_position[0])) * 42.0])
       self.particle_system.set_position(self.submarine.get_image_point(0))
       self.particle_system.update()
 
