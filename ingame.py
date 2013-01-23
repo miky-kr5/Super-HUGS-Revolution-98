@@ -159,6 +159,10 @@ class InGameState(BaseState):
        self.text_h = self.font.size("Puntos:   " + str(1000))[1]
        self.text_box.set_alpha(128 + 64 + 32)
 
+       self.reticule = imloader.cached_image_loader.get_image_to_screen_percent('gfx/reticula.png')
+       self.ret_rect = self.reticule.get_rect()
+       self.ret_rect.center = self.screen_center
+
     def recenter_view(self):
        # Reset the view.
        self.bckg_x = 0
@@ -512,3 +516,4 @@ class InGameState(BaseState):
 
        canvas.blit(self.game_area, (self.bckg_x, self.bckg_y))
        canvas.blit(self.text_box, (5, 5))
+       canvas.blit(self.reticule, self.ret_rect)
