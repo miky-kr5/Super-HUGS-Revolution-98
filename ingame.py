@@ -413,7 +413,10 @@ class InGameState(BaseState):
 
              for npc in self.npcs:
                 npc.update()
-
+                if self.player.is_moving() and npc.test_collision_with_actor(self.player):
+                   npc.make_invisible()
+                   self.create_explosion(npc.get_position())
+                   player.PLAYERS[1].inc_score_by_one()
              # TODO: Detect collisions with player here.
 
              # Remove invisible npcs.
@@ -427,6 +430,10 @@ class InGameState(BaseState):
                 pygame.time.set_timer(pygame.USEREVENT + 1, 1000)
 
              self.npcs.difference_update(removal)
+             
+             if player.PLAYERS[1].get_score() > 0 and player.PLAYERS[1].get_score() % 25 == 0:
+                self.wave += 1
+                player.PLAYERS[1].inc_score_by_one()
 
           elif self.time_left < -3:
              # Reset everything.
