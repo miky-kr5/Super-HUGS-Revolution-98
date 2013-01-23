@@ -163,6 +163,8 @@ class InGameState(BaseState):
        self.ret_rect = self.reticule.get_rect()
        self.ret_rect.center = self.screen_center
 
+       self.scare_dist = (250 * pygame.display.Info().current_h) / 768
+
     def recenter_view(self):
        # Reset the view.
        self.bckg_x = 0
@@ -215,6 +217,7 @@ class InGameState(BaseState):
        huggable.set_fps(5)
        huggable.set_angle(math_utils.ang_2_radians(float(random.randrange(-180, 180, 1))))
        huggable.set_velocity([0, 0])
+       huggable.set_acceleration_fraction(0.35)
        huggable.set_position(position)
        huggable.set_constraints(self.constraints)
        huggable.set_rotate_on_constraint(True)
@@ -380,11 +383,6 @@ class InGameState(BaseState):
 
           if not self.done:
              if self.cursor_x != self.screen_center[0] or self.cursor_y != self.screen_center[1]:
-                #p_pos = self.player.get_position()
-                #(dist_x, dist_y) = (self.screen_center[0] - p_pos[0], self.screen_center[1] - p_pos[1])
-                #self.cursor_x += dist_x
-                #self.cursor_y += dist_y
-                #vec_2 = (float(self.cursor_x) - float(p_pos[0]), float(self.cursor_y) - float(p_pos[1]))
                 vec_2 = (float(self.cursor_x) - float(self.screen_center[0]), float(self.cursor_y) - float(self.screen_center[1]))
                 vec_2 = math_utils.normalize_vector_2D(vec_2)
                 self.player.set_angle(math_utils.angle_vectors_2D(self.vec_1, vec_2))
@@ -411,17 +409,34 @@ class InGameState(BaseState):
                    npc.set_angle(math_utils.ang_2_radians(float(random.randrange(-180, 180, 1))))
                 self.change_angle = False
 
+             removal = set()
              for npc in self.npcs:
+                # Check if the npc must run away from the player.
+                if math_utils.distance_2D(self.player.get_position(), npc.get_position()) < self.scare_dist:
+                   if not npc.is_scared():
+                      npc.toggle_scared()
+                   
+                      npc.set_velocity([0, 0])
+
+                   # Move in the opposite direction of the player.
+                   n_pos = npc.get_position()
+                   p_pos = self.player.get_position()
+                   vec_2 = (float(n_pos[0] - p_pos[0]), float(n_pos[1] - p_pos[1]))
+                   vec_2 = math_utils.normalize_vector_2D(vec_2)
+                   npc.set_angle(math_utils.angle_vectors_2D(self.vec_1, vec_2))
+                else:
+                   if npc.is_scared():
+                      npc.toggle_scared()
+
                 npc.update()
+
+                # Detect collisions with the player.
                 if self.player.is_moving() and npc.test_collision_with_actor(self.player):
                    npc.make_invisible()
                    self.create_explosion(npc.get_position())
                    player.PLAYERS[1].inc_score_by_one()
-             # TODO: Detect collisions with player here.
 
-             # Remove invisible npcs.
-             removal = set()
-             for npc in self.npcs:
+                # If the npc exploded this turn, remove it.
                 if not npc.is_visible():
                    removal.add(npc)
 
@@ -489,9 +504,6 @@ class InGameState(BaseState):
     def render(self, canvas):
        #canvas.fill(self.background_color)
        self.game_area.blit(self.background, (0, 0))
-
-       for spawner in self.spawners:
-          spawner.draw(self.game_area)
 
        # Blit everything to the bacground.
        # Sort npcs by Y coordinate and draw.

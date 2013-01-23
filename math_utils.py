@@ -26,3 +26,7 @@ def ang_2_radians(ang):
 
 def radians_2_ang(rad):
     return (rad * 180.0) / PI
+
+def distance_2D(point1, point2):
+    return math.sqrt(((point1[0] - point2[0]) * (point1[0] - point2[0]))
+                     + ((point1[1] - point2[1]) * (point1[1] - point2[1])))

@@ -253,6 +253,7 @@ class OmnidirectionalActor(BaseActor):
         self.frame_rate = frame_rate
         self.moving = False
         self.rotate_on_constraint = False
+        self.scared = False
 
         self.friction = 0.90
 
@@ -260,7 +261,7 @@ class OmnidirectionalActor(BaseActor):
         self.constraint_min_y = 0
         self.constraint_max_x = 1024
         self.constraint_max_y = 768
-        
+
         self.acc_fract_x = ((0.4 * float(pygame.display.Info().current_w)) / 1024.0)
         self.acc_fract_y = ((0.4 * float(pygame.display.Info().current_h)) / 768.0)
 
@@ -268,6 +269,10 @@ class OmnidirectionalActor(BaseActor):
         self.moving_frames = []
         self.scared_frames = []
         self.current_frame = 0
+
+    def set_acceleration_fraction(self, fraction):
+        self.acc_fract_x = ((fraction * float(pygame.display.Info().current_w)) / 1024.0)
+        self.acc_fract_y = ((fraction * float(pygame.display.Info().current_h)) / 768.0)
 
     def is_moving(self):
         return self.moving
@@ -387,10 +392,14 @@ class OmnidirectionalActor(BaseActor):
             if self.current_frame >= len(self.moving_frames):
                 self.current_frame = len(self.moving_frames) - 1
 
+    def is_scared(self):
+        return self.scared
+
     def toggle_scared(self):
         aux = self.moving_frames
         self.moving_frames = self.scared_frames
         self.scared_frames = aux
+        self.scared = not self.scared
 
     def draw(self, canvas):
         if self.image is not None:
