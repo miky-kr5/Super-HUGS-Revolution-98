@@ -10,6 +10,11 @@ try:
 except ImportError:
    android = None
 
+try:
+    import pygame.mixer as mixer
+except ImportError:
+    import android_mixer as mixer
+
 from state import BaseState, VALID_STATES
 import actor
 import game
@@ -21,6 +26,7 @@ class IntroState(BaseState):
    def __init__(self):
       BaseState.__init__(self)
 
+      self.play_music = True
       self.count = 0
       self.next_transition = VALID_STATES['STAY']
 
@@ -89,6 +95,16 @@ class IntroState(BaseState):
             self.next_transition = VALID_STATES['MENU']
 
    def update(self):
+      if self.play_music:
+         mixer.music.load('music/YellowSubmarine.mp3')
+         mixer.music.play(0)
+         self.play_music = False
+
+      if self.next_transition != VALID_STATES['QUIT']:
+         sm_position = self.sine_movement.get_position()
+         if sm_position[0] > pygame.display.Info().current_w + self.w_extra:
+            self.next_transition = VALID_STATES['MENU']
+
       self.sine_movement.update()
       sm_position = self.sine_movement.get_position()
       self.submarine.set_position([sm_position[0], 
@@ -102,11 +118,6 @@ class IntroState(BaseState):
          print "Velocity: " + str(self.sine_movement.get_velocity())
          print "Position: " + str(self.sine_movement.get_position())
          print self.sine_movement.is_moving()
-
-      if self.next_transition != VALID_STATES['QUIT']:
-         sm_position = self.sine_movement.get_position()
-         if sm_position[0] > pygame.display.Info().current_w + self.w_extra:
-            self.next_transition = VALID_STATES['MENU']
 
       return self.next_transition
           

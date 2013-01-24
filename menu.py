@@ -8,8 +8,14 @@ try:
 except ImportError:
    android = None
 
+try:
+    import pygame.mixer as mixer
+except ImportError:
+    import android_mixer as mixer
+
 import database
 import player
+import audio
 from constants import DEBUG
 from imloader import cached_image_loader
 from actor import BaseActor
@@ -21,7 +27,7 @@ class MenuState(BaseState):
     def __init__(self):
        BaseState.__init__(self)
 
-       self.next_transition = VALID_STATES['STAY']
+       self.next_transition = VALID_STATES['INTRO']
        self.current_menu = MENUS['MAIN']
        self.story_time = 0
        self.story_timeout = 7000 # 7 seconds.
@@ -185,14 +191,8 @@ class MenuState(BaseState):
                 self.user_click = True
 
     def update(self):
-       if android is None:
-          pygame.mouse.set_visible(True)
-
-       player.PLAYERS[1].reset_score()
-
        if self.next_transition != VALID_STATES['QUIT']:
           if self.next_transition != VALID_STATES['STAY']:
-             # Set next_transition to STAY if the game gets to this state from ScoreState.
              self.next_transition = VALID_STATES['STAY']
              # Reset the scores label to force a database reload.
              self.score_1 = None
@@ -200,6 +200,17 @@ class MenuState(BaseState):
              self.score_3 = None
              self.score_4 = None
              self.score_5 = None
+             if android is None:
+                pygame.mouse.set_visible(True)
+             player.PLAYERS[1].reset_score()
+
+             if self.current_menu == MENUS['MAIN'] or self.current_menu == MENUS['INTRO']:
+                mixer.music.load('music/Press_Start_Infinitoooooooo.mp3')
+                mixer.music.play(-1)
+             else:
+                mixer.music.load('music/Wind_Waker_Main (Remix).mp3')
+                mixer.music.play(-1)
+             
 
           if self.current_menu == MENUS['MAIN']:
              # Check for mouse (tap) collisions with the main menu buttons.
@@ -210,17 +221,23 @@ class MenuState(BaseState):
                 # Collision with the high scores button.
                 self.current_menu = MENUS['SCORE']
                 self.reload_scores()
+                mixer.music.load('music/Wind_Waker_Main (Remix).mp3')
+                mixer.music.play(-1)
              elif self.new_button.rect.collidepoint(self.cursor_x, self.cursor_y):
                 # Collision with the new game button.
                 self.current_menu = MENUS['INTRO']
                 self.then = pygame.time.get_ticks()
+                mixer.music.stop()
+                audio.cached_audio_manager.play_sound('sfx/press_start_2.wav')
 
           elif self.current_menu == MENUS['SCORE']:
              # Check for mouse (tap) collisions with the high scores menu buttons.
              if self.back_button.rect.collidepoint(self.cursor_x, self.cursor_y):
                 # Collision with the go back button.
                 self.current_menu = MENUS['MAIN']
-
+                mixer.music.load('music/Press_Start_Infinitoooooooo.mp3')
+                mixer.music.play(-1)
+                
           elif self.current_menu == MENUS['INTRO']:
              # Wait for a timeout before going to the game.
              now = pygame.time.get_ticks()

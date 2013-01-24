@@ -11,10 +11,16 @@ try:
 except ImportError:
    android = None
 
+try:
+    import pygame.mixer as mixer
+except ImportError:
+    import android_mixer as mixer
+
 import math_utils
 import player
 import background
 import imloader
+import audio
 import actor
 import database
 from state import BaseState, VALID_STATES
@@ -328,8 +334,9 @@ class InGameState(BaseState):
           huggable.add_moving_frame(image)
           
           huggable.toggle_scared()
-
+          
        self.npcs.add(huggable)
+       audio.cached_audio_manager.play_sound('sfx/Explo_1.wav')
           
     def create_new_enemy(self, position):
        play_img = imloader.cached_image_loader.get_image_to_screen_percent('gfx/ForeverAlone/Idle_front.png')
@@ -377,6 +384,7 @@ class InGameState(BaseState):
        enemy.set_angle(math_utils.angle_vectors_2D(self.vec_1, vec_2))
 
        self.enemies.add(enemy)
+       audio.cached_audio_manager.play_sound('sfx/amiguito.wav')
 
     def input(self):
        for event in pygame.event.get():
@@ -423,6 +431,9 @@ class InGameState(BaseState):
              # Start the enemy creation timer.
              pygame.time.set_timer(pygame.USEREVENT + 3, 3000)
 
+             mixer.music.load('music/8-Bit_Easter/01-DANJYON KIMURA-TELEPORTER.mp3')
+             mixer.music.play(-1)
+
           if self.cancel and self.time_left > 0:
              # If the player pressed escape, force a timeout.
              self.time_left = 0
@@ -437,6 +448,7 @@ class InGameState(BaseState):
              player.PLAYERS[1].kill()
              self.done = True
              self.create_explosion(self.player.get_position())
+             audio.cached_audio_manager.play_sound('sfx/Explo_4.wav')
 
           if not self.done:
              if self.cursor_x != self.screen_center[0] or self.cursor_y != self.screen_center[1]:
@@ -507,11 +519,13 @@ class InGameState(BaseState):
                 if self.player.is_moving() and npc.test_collision_with_actor(self.player):
                    npc.make_invisible()
                    self.create_explosion(npc.get_position())
+                   audio.cached_audio_manager.play_sound('sfx/Explo_4.wav')
                    player.PLAYERS[1].inc_score_by_one()
                    self.time_left += 1
 
                    if player.PLAYERS[1].get_score() % 25 == 0:
                       self.wave += 1
+                      audio.cached_audio_manager.play_sound('sfx/new_stage_1.wav')
 
                 # If the npc exploded this turn, remove it.
                 if not npc.is_visible():
@@ -536,10 +550,12 @@ class InGameState(BaseState):
                    enemy.make_invisible()
                    self.create_explosion(enemy.get_position())
                    removal.add(enemy)
+                   audio.cached_audio_manager.play_sound('sfx/Explo_2.wav')
                 elif enemy.get_position()[1] <= self.constraints[2] or enemy.get_position()[1] >= self.constraints[3]:
                    enemy.make_invisible()
                    self.create_explosion(enemy.get_position())
                    removal.add(enemy)
+                   audio.cached_audio_manager.play_sound('sfx/Explo_2.wav')
 
              if len(removal) > 0 and len(self.enemies) >= self.max_npc:
                 # If npcs dissapeared this cycle restart the timer.

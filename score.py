@@ -9,8 +9,14 @@ try:
 except ImportError:
    android = None
 
+try:
+    import pygame.mixer as mixer
+except ImportError:
+    import android_mixer as mixer
+
 import player
 import database
+import audio
 from constants import DEBUG
 from imloader import cached_image_loader
 from actor import BaseActor
@@ -21,7 +27,7 @@ class ScoreState(BaseState):
        BaseState.__init__(self)
 
        self.background_color = (125, 158, 192)
-       self.next_transition = VALID_STATES['STAY']
+       self.next_transition = VALID_STATES['MENU']
        self.cursor_x = 0
        self.cursor_y = 0
 
@@ -97,6 +103,9 @@ class ScoreState(BaseState):
           if self.next_transition != VALID_STATES['STAY']:
              # Set next_transition to STAY if the game gets to this state from GameState a second or third time, etc.
              self.next_transition = VALID_STATES['STAY']
+             mixer.music.stop()
+             audio.cached_audio_manager.play_sound('sfx/Game_Over_2.wav')
+             
 
           if self.letter_index < 3:
              # If not all initials are set, check taps on every letter.

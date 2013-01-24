@@ -9,6 +9,11 @@ try:
 except ImportError:
    android = None
 
+try:
+    import pygame.mixer as mixer
+except ImportError:
+    import android_mixer as mixer
+
 import database
 from game import Game
 
@@ -20,6 +25,7 @@ def main():
    # Init PyGame.
    pygame.init()
    pygame.font.init()
+   mixer.init()
    
    if android:
       # Init pgs4a and map Android's back button to PyGame's escape key.
