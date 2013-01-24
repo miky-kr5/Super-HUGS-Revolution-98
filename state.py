@@ -1,5 +1,6 @@
-# Miguel Angel Astor Romero. Created on 7-1-2013. #
-###################################################
+###########################################
+# Created on 1-7-2013. Miguel Angel Astor #
+###########################################
 import pygame
 
 # Valid game states.

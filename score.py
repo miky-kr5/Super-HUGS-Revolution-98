@@ -63,21 +63,27 @@ class ScoreState(BaseState):
 
        letter_list = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h',
                       'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm']
-       q_x_position = int((float(pygame.display.Info().current_w) * 88.0 ) / 1024.0)
+
+       image = cached_image_loader.get_image_to_screen_percent('gfx/Fuente/a.png')
+       q_x_position = self.banner.rect.left + (image.get_width() // 2)
        q_y_position = int((float(pygame.display.Info().current_h) * 438.0 ) / 768.0)
        letter_sep = int((float(pygame.display.Info().current_w) * 10.0 ) / 1024.0)
+
        for l in letter_list:
           image = cached_image_loader.get_image_to_screen_percent('gfx/Fuente/' + l + '.png')
           letter_actor = BaseActor(89, image, string.upper(l), False, True, False)
           if l == 'a':
-             q_x_position = int((float(pygame.display.Info().current_w) * 154.0 ) / 1024.0)
-             q_y_position = int((float(pygame.display.Info().current_h) * 543.0 ) / 768.0)
+             q_x_position = self.banner.rect.left + image.get_width()
+             q_y_position = int((float(pygame.display.Info().current_h) * 543.0) / 768.0)
           elif l == 'z':
-             q_x_position = int((float(pygame.display.Info().current_w) * 199.0 ) / 1024.0)
-             q_y_position = int((float(pygame.display.Info().current_h) * 649.0 ) / 768.0)
+             q_x_position = self.banner.rect.left + int(1.5 * image.get_width())
+             q_y_position = int((float(pygame.display.Info().current_h) * 649.0) / 768.0)
           letter_actor.set_position([q_x_position, q_y_position])
           self.letters[l] = letter_actor
-          q_x_position += image.get_width() + letter_sep
+          if l == 'i':
+             q_x_position += image.get_width() + (2 * letter_sep)
+          else:
+             q_x_position += image.get_width() + letter_sep
 
        self.letter_y = int((float(pygame.display.Info().current_h) * 265.0 ) / 768.0)
 

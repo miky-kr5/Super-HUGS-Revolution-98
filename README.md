@@ -81,7 +81,7 @@ move to. On a PC just click with the mouse.
 Scoring:
 Hug people to increase your score. Every 25 hugs increases the current wave.
 Enemies become more frequent on higher waves. Hug as many people as you can
-before the time runs out.
+before the time runs out. Avoid the guys that want to hug you until you explode!
 
 Aditional assets
 ----------------
@@ -94,3 +94,8 @@ http://www.jamendo.com/es/list/a91205/8bit-easter
 The fonts Press Start 2P and Profaisal-EliteRiqa are available in
 http://openfontlibrary.org Check the font directory for more information
 on the fonts.
+
+Know issues
+-----------
+
+ *) Music does not always loops on Android. This is a known problem with pgs4a 0.9.4.
