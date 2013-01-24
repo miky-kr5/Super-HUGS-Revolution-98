@@ -6,7 +6,7 @@ import pygame
 try:
     import pygame.mixer as mixer
 except ImportError:
-    import android_mixer as mixer
+    import android.mixer as mixer
 
 class CachedAudioManager:
     def __init__(self):
