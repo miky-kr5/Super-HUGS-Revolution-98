@@ -98,4 +98,4 @@ on the fonts.
 Know issues
 -----------
 
- *) Music does not always loops on Android. This is a known problem with pgs4a 0.9.4.
+    1) Music does not always loops on Android. This is a known problem with pgs4a 0.9.4.
