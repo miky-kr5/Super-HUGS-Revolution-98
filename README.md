@@ -72,7 +72,7 @@ How to play
 
 Executing:
 To play on a PC execute the main.py script of Super HUGS Revolution 98. To play
-on Android start the installed app (it is named HUGS by default).
+on Android start the installed app (it is named HUGS 98 by default).
 
 Controls:
 Guide Moncho by tapping and holding on the screen wherever you want him to

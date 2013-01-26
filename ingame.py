@@ -110,7 +110,7 @@ class InGameState(BaseState):
                            bg_h - int((155.0 * float(pygame.display.Info().current_h)) / 768.0)]
 
        # Place the spawners in position.
-       positions = [(137, 181), (660, 181), (1190, 181), (1190, 662), (1190, 1155), (660, 1155), (137, 1155), (137, 662)]
+       positions = [(180, 200), (660, 200), (1140, 200), (1140, 662), (1140, 1055), (660, 1055), (180, 1055), (180, 662)]
        i = 0
        for spawner in self.spawners:
           spawner.set_position([(positions[i][0] * bg_w) / 1315, (positions[i][1] * bg_h) / 1280])
@@ -579,6 +579,7 @@ class InGameState(BaseState):
              # TODO: Destroy all NPC's.
              self.explosions.clear()
              self.npcs.clear()
+             self.enemies.clear()
 
              player.PLAYERS[1].revive()
              
