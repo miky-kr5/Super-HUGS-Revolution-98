@@ -1,1 +1,1 @@
-{"layout": "internal", "orientation": "landscape", "package": "com.blogspot.oneoop.hugs", "include_pil": false, "name": "Super HUGS Revolution 98", "icon_name": "HUGS 98", "version": "1.0.1", "permissions": ["INTERNET", "VIBRATE"], "include_sqlite": true, "numeric_version": "10001"}
+{"layout": "internal", "orientation": "landscape", "package": "com.blogspot.oneoop.hugs", "include_pil": false, "name": "Super HUGS Revolution 98", "icon_name": "HUGS 98", "version": "1.0.2", "permissions": ["INTERNET", "VIBRATE"], "include_sqlite": true, "numeric_version": "10002"}
